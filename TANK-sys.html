@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en" style="height:230%; ">
+<head>
+    <meta charset="UTF-8">
+    <title>云边协同监控平台</title>
+    <script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+
+
+<body>
+<div class="content-body">
+    <div class="header">
+        <div class="header-left">
+            <span>实时云边协同监控平台</span>
+                <button id="window">+</button>
+                <div id="modal">
+                    <button id="close">X</button>
+
+                    <div class="op">
+                        <h4>编排算法（Layout Algorithm）</h4>
+                        <div class="switch">
+                            <input name="radio" type="radio" value="optionone" id="optionone" checked>
+                            <label for="optionone" class="left">编排算法A</label>
+
+                            <input name="radio" type="radio" value="optiontwo" id="optiontwo">
+                            <label for="optiontwo" class="middle">编排算法B</label>
+
+                            <input name="radio" type="radio" value="optionthree" id="optionthree">
+                            <label for="optionthree" class="right">编排算法C</label>
+                            <span aria-hidden="true"></span>
+                        </div>
+
+                        <h4>调度算法（Scheduling Algorithm）</h4>
+                        <div class="switch">
+                            <input name="radio2" type="radio" value="optionfour" id="optionfour" checked>
+                            <label for="optionfour" class="left">调度算法A</label>
+
+                            <input name="radio2" type="radio" value="optionfive" id="optionfive">
+                            <label for="optionfive" class="middle">调度算法B</label>
+
+                            <input name="radio2" type="radio" value="optionsix" id="optionsix">
+                            <label for="optionsix" class="right">调度算法C</label>
+                            <span aria-hidden="true"></span>
+                        </div>
+
+                    </div>
+
+                    <section class="col">
+                        <div class="button raised clickable">
+                            <input type="checkbox" class="toggle" id="yes"/>
+                            <div class="anim"></div><span>确 认</span>
+                        </div>
+                    </section>
+
+                </div>
+        </div>
+
+        <div class="header-time">
+            <span id="time"></span>
+        </div>
+		<div class="icon-introduction">
+        </div>
+    </div>
+    <div class="content">
+        <div class="content-con">
+            <div class="left-body">
+                <div class="left-con public-bg">
+                    <div class="public-title">网络拓扑图例</div>
+						<div class="line methodOne">
+							<img src="image/center.png" alt=""/>
+							<span>请求生成器</span>
+						</div>
+						<div class="line methodOne">
+							<img src="image/Master.png" alt=""/>
+							<span>边缘侧Master</span>
+						</div>
+							<div class="line methodOne">
+								<div class="pic">
+									<img src="image/node.png" alt=""/>
+									<span>边缘侧Node</span>
+								</div>
+						</div>
+						<div class="line methodOne">
+							<img src="image/cloud.png" alt=""/>
+							<span>云端Node</span>
+						</div>
+                </div>
+
+                <div class="left-top public-bg">
+                    <div class="public-title">平台资源占用情况</div>
+					<div class="resource" id="resource"></div>
+
+                </div>
+            </div>
+
+            <div class="center-body">
+                <div class="map" id="map"></div>
+            </div>
+
+            <div class="right-body">
+                <div class="right-top public-bg">
+                    <div class="public-title">平台信息</div>
+					<div class="top-body">
+                        <div class="top-left">
+                            <div class="top-left-title">
+                                <h6>MASTER数量</h6>
+                                <span><b id="masterNum"></b>个</span>
+								<img src="image/pictre.png" alt="">
+                            </div>
+                        </div>
+                        <div class="top-right">
+                            <div class="top-left-title">
+                                <h6>NODE数量</h6>
+                                <span><b id="nodeNum"></b>个</span>
+								<img src="image/pictre.png" alt="">
+                            </div>
+                        </div>
+                        <div class="top-left">
+                            <div class="top-left-title-si">
+                                <h6>平台运行状态</h6>
+                                <span><b>GOOD</b></span>
+								<img src="image/pictre.png" alt="">
+                            </div>
+                        </div>
+                        <div class="top-right">
+                            <div class="top-left-title-si">
+                                <h6>平台运行时长</h6>
+                                <span><b id="systime"></b></span>
+								<img src="image/pictre.png" alt="">
+                            </div>
+                        </div>
+
+                </div>
+                </div>
+
+                <div class="right-bottom public-bg">
+                    <div class="public-title">平台任务处理情况</div>
+                    <div class="title-nav" id="task"></div>
+                </div>
+            </div>
+
+            <div class="info-table">
+
+                <div class="edgeCluster public-bg">
+                    <div class="public-title">边缘集群信息</div>
+                    <div class="table-con">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th data-campo='Nick'>Name</th>
+                                <th data-campo='Mail'>Status</th>
+                                <th data-campo='Web'>Deployment</th>
+                                <th data-campo='Twitter'>Funciton</th>
+                                <th data-campo='Id'>Id</th>
+                            </tr>
+                            </thead>
+                        </table>
+
+                    </div>
+                </div>
+                <div class="cloudCluster public-bg">
+                    <div class="public-title">云集群信息</div>
+                    <div class="table-con">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th data-campo='Nick'>Name</th>
+                                <th data-campo='Mail'>Status</th>
+                                <th data-campo='Web'>Deployment</th>
+                                <th data-campo='Twitter'>Funciton</th>
+                                <th data-campo='Id'>Id</th>
+                            </tr>
+                            </thead>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+
+            </div>
+
+            <div class="info-graph">
+                <div class="cluster public-bg">
+                    <div class="public-title">集群任务处理情况</div>
+                    <div class="cluster_1" id="cluster_1"></div>
+                </div>
+
+                <div class="cluster public-bg">
+                    <div class="public-title">集群资源占用情况</div>
+                    <div class="box">
+                        <select id="cluster_option">
+
+                        </select>
+                    </div>
+
+                    <div class="cluster_2" id="cluster_2"></div>
+                </div>
+
+                <div class="cluster public-bg">
+                    <div class="public-title">集群任务数量</div>
+                    <div class="cluster_3" id="cluster_3"></div>
+                </div>
+
+                <div class="cluster public-bg">
+                    <div class="public-title">阴影折线图</div>
+                    <div class="cluster_4" id="cluster_4"></div>
+                </div>
+
+           </div>
+        </div>
+    </div>
+</div>
+</div>
+
+</body>
+</html>
+
+<script src="js/sysEcharts.js"></script>
+<script src="js/dio.js"></script>
+<script src="ECharts/echarts.js"></script>
+
+<script>
+
+    //dashboard内容
+    const RESOURCES = ["namespace", "networking.k8s.io.ingress", "persistentvolume", "apps.deployment", "apps.statefulset", "batch.job", "apps.daemonset", "service"]
+    $.ajax({
+        url: '/v1/counts/count',
+        headers: {
+            'Accept': 'application/json'
+        },
+        success: function (resp) {
+            // console.log(resp);
+            const val = RESOURCES.map(res => resp.counts[res].summary.count || 0).reduce((acc, val) => acc + val, 0)
+            // console.log(val)
+        },
+    })
+
+    // setInterval(getNodesCount, 5000)
+    function getNodesCount() {
+        $.ajax({
+            //nodes信息
+            url: '/v3/nodes',
+            headers: {
+                'Accept': 'application/json'
+            },
+            success: function (resp) {
+                let data = resp['data'];
+                let master = 0;
+                let worker = 0;
+                let masterIDs = new Set();
+                let workerIDs = new Set();
+                data.forEach((element, index) => {
+                    let ifWorker = element.worker;
+                    let hostID = element.id;
+
+                    if (ifWorker) {
+                        worker++
+                        workerIDs.add(hostID)
+                    } else {
+                        master++
+                        masterIDs.add(hostID);
+                    }
+                })
+
+                $("#masterNum").html(master);
+                $("#nodeNum").html(worker);
+
+            },
+            error: function (message) {
+                console.log(message);
+                alert("提交数据失败！888" + message);
+            }
+        })
+
+    }
+
+</script>
