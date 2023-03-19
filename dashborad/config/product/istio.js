@@ -1,0 +1,77 @@
+import { DSL } from '@/store/type-map';
+import { ISTIO } from '@/config/types';
+import { STATE, NAME as NAME_HEADER, AGE } from '@/config/table-headers';
+
+export const NAME = 'istio';
+export const CHART_NAME = 'rancher-istio';
+
+export function init(store) {
+  const {
+    product,
+    basicType,
+    virtualType,
+    headers
+  } = DSL(store, NAME);
+
+  product({
+    ifHaveGroup: /^(.*\.)*istio\.io$/,
+    icon:        'istio',
+  });
+
+  virtualType({
+    label:       'Overview',
+    group:      'Root',
+    namespaced:  false,
+    name:        'istio-overview',
+    weight:      100,
+    route:       { name: 'c-cluster-istio' },
+    exact:       true,
+  });
+
+  basicType('istio-overview');
+
+  basicType([
+    'networking.istio.io.virtualservice',
+    'networking.istio.io.gateway',
+    'networking.istio.io.destinationrule',
+  ]);
+
+  basicType([
+    'networking.istio.io.envoyfilter',
+    'networking.istio.io.serviceentrie',
+    'networking.istio.io.sidecar',
+    'networking.istio.io.workloadentrie',
+  ], 'Networking');
+
+  basicType([
+    'rbac.istio.io.clusterrbacconfig',
+    'rbac.istio.io.rbacconfig',
+    'rbac.istio.io.servicerolebinding',
+    'rbac.istio.io.servicerole',
+  ], 'RBAC');
+
+  basicType([
+    'security.istio.io.authorizationpolicie',
+    'security.istio.io.peerauthentication',
+    'security.istio.io.requestauthentication',
+  ], 'Security');
+
+  headers(ISTIO.VIRTUAL_SERVICE, [
+    STATE,
+    NAME_HEADER,
+    {
+      name:      'gateways',
+      label:     'Gateways',
+      value:     'spec',
+      formatter: 'VirtualServiceGateways'
+    },
+    {
+      name:      'hosts',
+      label:     'Hosts',
+      value:     'spec.hosts',
+      sort:      ['spec.hosts'],
+      formatter: 'List'
+    },
+    AGE
+  ]);
+}

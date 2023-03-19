@@ -1,0 +1,4 @@
+import { DescribeLocalGatewayRouteTableVpcAssociationsCommandInput, DescribeLocalGatewayRouteTableVpcAssociationsCommandOutput } from "../commands/DescribeLocalGatewayRouteTableVpcAssociationsCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateDescribeLocalGatewayRouteTableVpcAssociations(config: EC2PaginationConfiguration, input: DescribeLocalGatewayRouteTableVpcAssociationsCommandInput, ...additionalArguments: any): Paginator<DescribeLocalGatewayRouteTableVpcAssociationsCommandOutput>;

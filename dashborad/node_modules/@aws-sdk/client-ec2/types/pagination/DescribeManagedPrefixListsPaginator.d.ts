@@ -1,0 +1,4 @@
+import { DescribeManagedPrefixListsCommandInput, DescribeManagedPrefixListsCommandOutput } from "../commands/DescribeManagedPrefixListsCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateDescribeManagedPrefixLists(config: EC2PaginationConfiguration, input: DescribeManagedPrefixListsCommandInput, ...additionalArguments: any): Paginator<DescribeManagedPrefixListsCommandOutput>;

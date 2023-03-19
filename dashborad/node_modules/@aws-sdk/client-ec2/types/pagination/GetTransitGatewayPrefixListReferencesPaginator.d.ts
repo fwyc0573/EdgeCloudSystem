@@ -1,0 +1,4 @@
+import { GetTransitGatewayPrefixListReferencesCommandInput, GetTransitGatewayPrefixListReferencesCommandOutput } from "../commands/GetTransitGatewayPrefixListReferencesCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateGetTransitGatewayPrefixListReferences(config: EC2PaginationConfiguration, input: GetTransitGatewayPrefixListReferencesCommandInput, ...additionalArguments: any): Paginator<GetTransitGatewayPrefixListReferencesCommandOutput>;

@@ -1,0 +1,4 @@
+import { DescribeLocalGatewayVirtualInterfaceGroupsCommandInput, DescribeLocalGatewayVirtualInterfaceGroupsCommandOutput } from "../commands/DescribeLocalGatewayVirtualInterfaceGroupsCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateDescribeLocalGatewayVirtualInterfaceGroups(config: EC2PaginationConfiguration, input: DescribeLocalGatewayVirtualInterfaceGroupsCommandInput, ...additionalArguments: any): Paginator<DescribeLocalGatewayVirtualInterfaceGroupsCommandOutput>;

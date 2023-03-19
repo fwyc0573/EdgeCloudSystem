@@ -1,0 +1,4 @@
+import { DescribeNetworkInsightsPathsCommandInput, DescribeNetworkInsightsPathsCommandOutput } from "../commands/DescribeNetworkInsightsPathsCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateDescribeNetworkInsightsPaths(config: EC2PaginationConfiguration, input: DescribeNetworkInsightsPathsCommandInput, ...additionalArguments: any): Paginator<DescribeNetworkInsightsPathsCommandOutput>;

@@ -1,0 +1,4 @@
+import { SearchTransitGatewayMulticastGroupsCommandInput, SearchTransitGatewayMulticastGroupsCommandOutput } from "../commands/SearchTransitGatewayMulticastGroupsCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateSearchTransitGatewayMulticastGroups(config: EC2PaginationConfiguration, input: SearchTransitGatewayMulticastGroupsCommandInput, ...additionalArguments: any): Paginator<SearchTransitGatewayMulticastGroupsCommandOutput>;

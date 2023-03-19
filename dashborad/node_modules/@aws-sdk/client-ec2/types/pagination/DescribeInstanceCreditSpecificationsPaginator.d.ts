@@ -1,0 +1,4 @@
+import { DescribeInstanceCreditSpecificationsCommandInput, DescribeInstanceCreditSpecificationsCommandOutput } from "../commands/DescribeInstanceCreditSpecificationsCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateDescribeInstanceCreditSpecifications(config: EC2PaginationConfiguration, input: DescribeInstanceCreditSpecificationsCommandInput, ...additionalArguments: any): Paginator<DescribeInstanceCreditSpecificationsCommandOutput>;

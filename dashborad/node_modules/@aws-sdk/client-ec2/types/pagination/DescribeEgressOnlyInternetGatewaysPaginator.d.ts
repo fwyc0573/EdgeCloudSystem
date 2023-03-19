@@ -1,0 +1,4 @@
+import { DescribeEgressOnlyInternetGatewaysCommandInput, DescribeEgressOnlyInternetGatewaysCommandOutput } from "../commands/DescribeEgressOnlyInternetGatewaysCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateDescribeEgressOnlyInternetGateways(config: EC2PaginationConfiguration, input: DescribeEgressOnlyInternetGatewaysCommandInput, ...additionalArguments: any): Paginator<DescribeEgressOnlyInternetGatewaysCommandOutput>;

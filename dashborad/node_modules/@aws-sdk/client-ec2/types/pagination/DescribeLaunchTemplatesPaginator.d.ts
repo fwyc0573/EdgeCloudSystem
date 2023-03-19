@@ -1,0 +1,4 @@
+import { DescribeLaunchTemplatesCommandInput, DescribeLaunchTemplatesCommandOutput } from "../commands/DescribeLaunchTemplatesCommand";
+import { EC2PaginationConfiguration } from "./Interfaces";
+import { Paginator } from "@aws-sdk/types";
+export declare function paginateDescribeLaunchTemplates(config: EC2PaginationConfiguration, input: DescribeLaunchTemplatesCommandInput, ...additionalArguments: any): Paginator<DescribeLaunchTemplatesCommandOutput>;

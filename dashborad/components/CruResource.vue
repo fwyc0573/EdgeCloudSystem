@@ -1,0 +1,402 @@
+<script>
+import isEmpty from 'lodash/isEmpty';
+import { createYaml } from '@/utils/create-yaml';
+import { clone } from '@/utils/object';
+import { SCHEMA } from '@/config/types';
+import ResourceYaml from '@/components/ResourceYaml';
+import Banner from '@/components/Banner';
+import AsyncButton from '@/components/AsyncButton';
+import { mapGetters } from 'vuex';
+import { stringify } from '@/utils/error';
+import CruResourceFooter from '@/components/CruResourceFooter';
+import {
+  _EDIT, _VIEW, AS, _YAML, _UNFLAG, SUB_TYPE
+} from '@/config/query-params';
+import { BEFORE_SAVE_HOOKS } from '@/mixins/child-hook';
+
+export default {
+  components: {
+    AsyncButton,
+    Banner,
+    CruResourceFooter,
+    ResourceYaml,
+  },
+
+  props: {
+    doneRoute: {
+      type:    String,
+      default: null
+    },
+
+    cancelEvent: {
+      type:    Boolean,
+      default: false,
+    },
+
+    showCancel: {
+      type:    Boolean,
+      default: true
+    },
+
+    mode: {
+      type:     String,
+      required: true
+    },
+
+    resource: {
+      type:     Object,
+      required: true
+    },
+
+    subtypes: {
+      type:    Array,
+      default: () => []
+    },
+
+    selectedSubtype: {
+      type:    String,
+      default: null
+    },
+
+    validationPassed: {
+      type:    Boolean,
+      default: true
+    },
+
+    errors: {
+      type:    Array,
+      default: () => []
+    },
+
+    canYaml: {
+      type:    Boolean,
+      default: true,
+    },
+
+    // Override the set of labels shown on the button from teh default save/create.
+    finishButtonMode: {
+      type:    String,
+      default: null,
+    }
+  },
+
+  data() {
+    const yaml = this.createResourceYaml(this.resource);
+
+    return {
+      isCancelModal: false,
+      showAsForm:    this.$route.query[AS] !== _YAML,
+      resourceYaml:  yaml,
+      initialYaml:   yaml,
+    };
+  },
+
+  computed: {
+    canSave() {
+      const { validationPassed, showAsForm } = this;
+
+      if (showAsForm) {
+        if (validationPassed) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+
+      return false;
+    },
+
+    canDiff() {
+      return this.initialYaml !== this.resourceYaml;
+    },
+
+    isView() {
+      return this.mode === _VIEW;
+    },
+
+    isEdit() {
+      return this.mode === _EDIT;
+    },
+
+    _selectedSubtype() {
+      if ( this.selectedSubtype ) {
+        return this.selectedSubtype;
+      }
+
+      return this.$route.query[SUB_TYPE];
+    },
+
+    showSubtypeSelection() {
+      if (isEmpty(this.subtypes)) {
+        return false;
+      }
+
+      if (!this._selectedSubtype) {
+        return true;
+      }
+
+      return false;
+    },
+    ...mapGetters({ t: 'i18n/t' })
+  },
+
+  created() {
+    if ( this._selectedSubtype ) {
+      this.$emit('select-type', this._selectedSubtype);
+    }
+  },
+
+  methods: {
+    stringify,
+
+    confirmCancel(isCancelNotBack = true) {
+      if (isCancelNotBack) {
+        this.emitOrRoute();
+      } else if (!this.showAsForm) {
+        this.resourceYaml = null;
+        this.showAsForm = true;
+        this.$router.applyQuery({ [AS]: _UNFLAG });
+      }
+    },
+
+    emitOrRoute() {
+      if ( this.cancelEvent ) {
+        this.$emit('cancel');
+      } else {
+        const { resource = this.resource.type } = this.$route.params;
+
+        this.$router.replace({
+          name:   this.doneRoute,
+          params: { resource }
+        });
+      }
+    },
+
+    createResourceYaml(resource) {
+      const inStore = this.$store.getters['currentProduct'].inStore;
+      const schemas = this.$store.getters[`${ inStore }/all`](SCHEMA);
+      const clonedResource = clone(resource);
+
+      const out = createYaml(schemas, resource.type, clonedResource);
+
+      return out;
+    },
+
+    async showPreviewYaml() {
+      await this.$emit('apply-hooks', BEFORE_SAVE_HOOKS);
+      const resourceYaml = this.createResourceYaml(this.resource);
+
+      this.resourceYaml = resourceYaml;
+      this.showAsForm = false;
+      this.$router.applyQuery({ [AS]: _YAML });
+    },
+
+    selectType(id, event) {
+      if (event?.srcElement?.tagName === 'A') {
+        return;
+      }
+
+      this.$router.applyQuery({ [SUB_TYPE]: id });
+      this.$emit('select-type', id);
+    }
+  }
+};
+</script>
+
+<template>
+  <section>
+    <form :is="(isView? 'div' : 'form')" class="create-resource-container">
+      <div
+        v-if="showSubtypeSelection"
+        class="subtypes-container"
+      >
+        <slot name="subtypes" :subtypes="subtypes">
+          <div
+            v-for="subtype in subtypes"
+            :key="subtype.id"
+            class="subtype-banner"
+            :class="{ selected: subtype.id === _selectedSubtype }"
+            @click="selectType(subtype.id, $event)"
+          >
+            <slot name="subtype-content">
+              <div class="subtype-content">
+                <div class="title">
+                  <slot name="subtype-logo">
+                    <div class="subtype-logo round-image">
+                      <img
+                        v-if="subtype.bannerImage"
+                        src="subtype.bannerImage"
+                        alt="${ resource.type }: ${ subtype.label }"
+                      />
+                      <div
+                        v-else-if="subtype.bannerAbbrv"
+                        class="banner-abbrv"
+                      >
+                        <span v-if="$store.getters['i18n/exists'](subtype.bannerAbbrv)">{{ t(subtype.bannerAbbrv) }}</span>
+                        <span v-else>{{ subtype.bannerAbbrv }}</span>
+                      </div>
+                      <div v-else>
+                        {{ subtype.id.slice(0, 1).toUpperCase() }}
+                      </div>
+                    </div>
+                  </slot>
+                  <h5>
+                    <span
+                      v-if="$store.getters['i18n/exists'](subtype.label)"
+                      v-html="t(subtype.label)"
+                    ></span>
+                    <span v-else>{{ subtype.label }}</span>
+                  </h5>
+                  <a href="" target="_blank" rel="noopener nofollow" class="flex-right">More Info <i class="icon icon-external-link" /></a>
+                </div>
+                <hr />
+                <div v-if="subtype.description" class="description">
+                  <span
+                    v-if="$store.getters['i18n/exists'](subtype.description)"
+                    v-html="t(subtype.description, {}, true)"
+                  ></span>
+                  <span v-else>{{ subtype.description }}</span>
+                </div>
+              </div>
+            </slot>
+          </div>
+        </slot>
+      </div>
+      <template v-if="showAsForm">
+        <div
+          v-if="_selectedSubtype || !subtypes.length"
+          class="resource-container"
+        >
+          <slot />
+        </div>
+        <div class="controls-row">
+          <slot name="form-footer">
+            <CruResourceFooter
+              :mode="mode"
+              :is-form="showAsForm"
+              :show-cancel="showCancel"
+              @cancel-confirmed="confirmCancel"
+            >
+              <!-- Pass down templates provided by the caller -->
+              <template v-for="(_, slot) of $scopedSlots" v-slot:[slot]="scope">
+                <slot :name="slot" v-bind="scope" />
+              </template>
+
+              <template #default>
+                <div v-if="!isView">
+                  <button
+                    v-if="canYaml && (_selectedSubtype || !subtypes.length)"
+                    type="button"
+                    class="btn role-secondary"
+                    @click="showPreviewYaml"
+                  >
+                    <t k="cruResource.previewYaml" />
+                  </button>
+                  <AsyncButton
+                    v-if="!showSubtypeSelection"
+                    :disabled="!canSave"
+                    :mode="finishButtonMode || mode"
+                    @click="$emit('finish', $event)"
+                  />
+                </div>
+              </template>
+            </CruResourceFooter>
+          </slot>
+        </div>
+      </template>
+
+      <section
+        v-else
+        class="cru-resource-yaml-container"
+      >
+        <ResourceYaml
+          ref="resourceyaml"
+          :value="resource"
+          :mode="mode"
+          :initial-yaml-for-diff="initialYaml"
+          :yaml="resourceYaml"
+          :offer-preview="isEdit"
+          :done-route="doneRoute"
+          :done-override="resource.doneOverride"
+          :errors="errors"
+          @apply-hooks="$emit('apply-hooks', $event)"
+          @error="e=>$emit('error', e)"
+        >
+          <template #yamlFooter="{yamlSave, showPreview, yamlPreview, yamlUnpreview}">
+            <div class="controls-row">
+              <slot name="cru-yaml-footer">
+                <CruResourceFooter
+                  :done-route="doneRoute"
+                  :mode="mode"
+                  :is-form="showAsForm"
+                  @cancel-confirmed="confirmCancel"
+                >
+                  <template #default="{checkCancel}">
+                    <div class="controls-middle">
+                      <button
+                        v-if="showPreview"
+                        type="button"
+                        class="btn role-secondary"
+                        @click="yamlUnpreview"
+                      >
+                        <t k="resourceYaml.buttons.continue" />
+                      </button>
+                      <button
+                        v-if="!showPreview && isEdit"
+                        :disabled="!canDiff"
+                        type="button"
+                        class="btn role-secondary"
+                        @click="yamlPreview"
+                      >
+                        <t k="resourceYaml.buttons.diff" />
+                      </button>
+                    </div>
+                    <div v-if="_selectedSubtype || !subtypes.length" class="controls-right">
+                      <button type="button" class="btn role-secondary" @click="checkCancel(false)">
+                        <t k="cruResource.backToForm" />
+                      </button>
+                      <AsyncButton
+                        v-if="!showSubtypeSelection"
+                        :disabled="!canSave"
+                        :action-label="isEdit ? t('generic.save') : t('generic.create')"
+                        @click="cb=>yamlSave(cb)"
+                      />
+                    </div>
+                  </template>
+                </CruResourceFooter>
+              </slot>
+            </div>
+          </template>
+        </ResourceYaml>
+      </section>
+
+      <div
+        v-for="(err, idx) in errors"
+        :key="idx"
+      >
+        <Banner
+          color="error"
+          :label="stringify(err)"
+        />
+      </div>
+    </form>
+  </section>
+</template>
+
+<style lang='scss' scoped>
+.cru-resource-yaml-container {
+  .resource-yaml {
+    .yaml-editor {
+      min-height: 100px;
+    }
+  }
+}
+.create-resource-container {
+  .subtype-banner {
+    .round-image {
+      background-color: var(--primary);
+    }
+  }
+}
+
+</style>
