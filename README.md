@@ -6,6 +6,6 @@ My undergraduate work (awarded Outstanding Final Design), a customised K8s cloud
 ## Video demonstration
 https://www.bilibili.com/video/BV1ZX4y1o7vh/
 
-![screen](https://github.com/fwyc0573/EdgeCloudSystem/tree/main/customizedWeb/fig)
+![screen]([https://github.com/fwyc0573/EdgeCloudSystem/tree/main/customizedWeb/fig](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig.png))
 
 ## Project
