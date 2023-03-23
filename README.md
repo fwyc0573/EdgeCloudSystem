@@ -24,7 +24,7 @@ The cloud edge system architecture is as follows:
 * **Edge Side**：Requests received by the edge-side entry access point (eAP) are forwarded by the scheduling algorithm to the edge cluster or cloud cluster for request processing.
 * **Cloud Side**：Compared to the edge cluster, the cloud cluster has more powerful computing and processing capabilities, and more complex and intelligent applications are deployed in the cloud.
 * **Private Registry**：A private pegistry is configured for the system platform, in which a large number of service images are stored to facilitate the deployment of services in each cluster.
-* **System Monitor**：System information such as the number of nodes, resource utilisation, real-time scheduling of tasks, processing of tasks and deployment of containerised services will all be presented by the front-end.
+* **System Monitor**：System information such as the number of nodes, resource utilisation, real-time scheduling of tasks, processing of tasks and deployment of containerised services, etc., will all be presented by the front-end.
 
 
 ## Part of the Important Implement and Design
