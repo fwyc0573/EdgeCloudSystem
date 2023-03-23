@@ -15,25 +15,25 @@ https://www.bilibili.com/video/BV1ZX4y1o7vh/
 The cloud edge system architecture is as follows:
 
 <!-- ![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png) -->
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width="300" /><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width="400" /><br/>
 
 PVE virtual cluster construction:
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fi5.png" width="500" height="500"/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fi5.png" width="400" /><br/>
 
 Modification and recompilation of Rancher (a K8S monitoring open source architecture)：
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig2.png" width="500" height="500"/><br/>
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig4.png" width="500" height="500"/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig2.png" width="400" /><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig4.png" width="400" /><br/>
 
 Custom visual web creation based on the Echarts library：
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig6.png" width="500" height="500"/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig6.png" width="400" /><br/>
 
 Containerisation and deployment of several popular GitHub AI applications：
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig3.png" width="500" height="500"/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig3.png" width="400" /><br/>
 
 The system back-end contains greedy algorithms for container services and deep reinforcement learning scheduling algorithms.
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png" width="500" height="500"/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png" width="400" /><br/>
