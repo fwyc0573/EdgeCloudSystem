@@ -15,7 +15,7 @@ https://www.bilibili.com/video/BV1ZX4y1o7vh/
 The cloud edge system architecture is as follows:
 
 <!-- ![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png) -->
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width:50%/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width="300"/><br/>
 
 PVE virtual cluster construction:
 
