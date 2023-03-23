@@ -7,7 +7,7 @@ My undergraduate work (awarded Outstanding Final Design), a K8s-based edge cloud
 https://www.bilibili.com/video/BV1ZX4y1o7vh/
 
 <!-- ![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig.png) -->
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig.png" width="800" height="800"/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig.png" width="800" /><br/>
 
 
 ## Project
@@ -15,7 +15,7 @@ https://www.bilibili.com/video/BV1ZX4y1o7vh/
 The cloud edge system architecture is as follows:
 
 <!-- ![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png) -->
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width:50% height:50%/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width:50%/><br/>
 
 PVE virtual cluster construction:
 
