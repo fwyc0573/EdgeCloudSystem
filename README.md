@@ -8,5 +8,24 @@ https://www.bilibili.com/video/BV1ZX4y1o7vh/
 
 ![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig.png)
 
+![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png)
 
 ## Project
+
+The cloud edge system architecture is as follows:
+![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png)
+
+PVE virtual cluster construction:
+![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig5.png)
+
+Modification and recompilation of Rancher (a K8S monitoring open source architecture)：
+![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig2.png)
+![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig4.png)
+
+Custom visual web creation based on the Echarts library：
+![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig6.png)
+
+Containerisation and deployment of several popular GitHub AI applications：
+![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig3.png)
+
+The system back-end contains greedy algorithms for container services and deep reinforcement learning scheduling algorithms.
