@@ -49,28 +49,3 @@ The system back-end contains greedy algorithms for container services and deep r
 
 <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png" width="400" /><br/>
 
-
-
-## Part of the Important Implement and Design
-
-PVE virtual cluster construction:
-
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fi5.png" width="400" /><br/>
-****
-Modification and recompilation of Rancher (a K8S monitoring open source architecture)：
-
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig4.png" height="150" />  <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig2.png" height="150" /><br/>
-****
-Custom visual web creation based on the Echarts library：
-
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig6.png" width="400" /><br/>
-****
-Containerisation and deployment of several popular GitHub AI applications：
-
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig3.png" width="400" /><br/>
-****
-The system back-end contains greedy algorithms for container services and deep reinforcement learning scheduling algorithms：
-
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png" width="400" /><br/>
-
- 
