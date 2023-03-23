@@ -17,7 +17,18 @@ The cloud edge system architecture is as follows:
 
 <!-- ![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png) -->
 <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width="400" /><br/>
-****
+
+* The device side is a request generation. In order to simulate the generation of user requests, the request generation is simulated by using Ali Cloud and other environments as request generators.
+* These requests will be specifically transmitted to the edge or cloud, which will rely on the system scheduling algorithm to schedule requests to the working nodes, for processing.
+* Compared to the edge layer, the cloud cluster has more powerful computing and processing capabilities, and more complex and intelligent applications are deployed in the cloud.
+* In addition, a dedicated private Docker Hub is configured for the system platform, in which a large number of service images are stored to facilitate the deployment of services in each cluster.
+
+
+
+
+
+## Part of the Important Implement and Design
+
 PVE virtual cluster construction:
 
 <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fi5.png" width="400" /><br/>
@@ -34,7 +45,7 @@ Containerisation and deployment of several popular GitHub AI applications：
 
 <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig3.png" width="400" /><br/>
 ****
-The system back-end contains greedy algorithms for container services and deep reinforcement learning scheduling algorithms.
+The system back-end contains greedy algorithms for container services and deep reinforcement learning scheduling algorithms：
 
 <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png" width="400" /><br/>
 
