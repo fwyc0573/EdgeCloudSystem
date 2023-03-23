@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-dqn-simplenet
+  labels:
+    app: service-dqn-simplenet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-dqn-simplenet
+  template:
+    metadata:
+      labels:
+        app: service-dqn-simplenet
+    spec:
+      containers:
+      - name: service-dqn-simplenet
+        image: registry.cn-qingdao.aliyuncs.com/qiaoyufei01/service-dqn-simplenet:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: service-dqn-simplenet-storage
+          mountPath: /home/service/dqn-simplenet
+        resources:
+          limits:
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+          requests:
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+        ports:
+        - name: http
+          containerPort: 4002
+      volumes:
+      - name: service-dqn-simplenet-storage
+        hostPath:
+          path: /home/cloudmaster/cloudHTTP/cloud/app/service-dqn-simplenet/mapping
+
+

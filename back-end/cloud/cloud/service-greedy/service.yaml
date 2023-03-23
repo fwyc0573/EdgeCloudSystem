@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-greedy
+  labels:
+    app: service-greedy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: service-greedy
+  template:
+    metadata:
+      labels:
+        app: service-greedy
+    spec:
+      containers:
+      - name: service-greedy
+        image: registry.cn-qingdao.aliyuncs.com/qiaoyufei01/service-greedy:latest
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: service-greedy-storage
+          mountPath: /home/service/greedy
+        resources:
+          limits:
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+          requests:
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+        ports:
+        - name: http
+          containerPort: 4001
+      volumes:
+      - name: service-greedy-storage
+        hostPath:
+          path: /home/cloudmaster/cloudHTTP/cloud/app/service-greedy/mapping
+   
+
+

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: random-node-offload-deployment
+  labels:
+    app: random-node-offload-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: random-node-offload-deployment
+  template:
+    metadata:
+      labels:
+        app: random-node-offload-deployment
+    spec:
+      containers:
+      - name: random-node-offload-deployment
+        image: registry.cn-qingdao.aliyuncs.com/qiaoyufei01/random-node-offload-deployment:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+          requests:
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+        ports:
+        - name: http
+          containerPort: 4000
+   
+
+

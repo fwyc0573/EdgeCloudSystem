@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dqn-node-offload-deployment
+  labels:
+    app: dqn-node-offload-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dqn-node-offload-deployment
+  template:
+    metadata:
+      labels:
+        app: dqn-node-offload-deployment
+    spec:
+      containers:
+      - name: dqn-node-offload-deployment
+        image: registry.cn-qingdao.aliyuncs.com/qiaoyufei01/dqn-node-offload-deployment:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+          requests:
+            memory: 1Gi
+            ephemeral-storage: 2Gi
+        ports:
+        - name: http
+          containerPort: 4002
+   
+
+
