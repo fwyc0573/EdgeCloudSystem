@@ -20,11 +20,11 @@ The cloud edge system architecture is as follows:
 <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width="500" /><br/>
 </div>
 
-* The device side is a workload generation. In order to simulate the generation of user requests, the request generation is simulated by using Ali Cloud and other environments as request generators.
-* These requests will be specifically transmitted to the edge or cloud, which will rely on the system scheduling algorithm to schedule requests to the working nodes, for processing.
-* Compared to the edge layer, the cloud cluster has more powerful computing and processing capabilities, and more complex and intelligent applications are deployed in the cloud.
-* A dedicated private Docker Hub is configured for the system platform, in which a large number of service images are stored to facilitate the deployment of services in each cluster.
-* System information such as the number of nodes, resource utilisation, real-time scheduling of tasks, processing of tasks and deployment of containerised services will all be presented by the front-end.
+* **Device Side**：The device side is a workload generation. In order to simulate the generation of user requests, the request generation is simulated by using Ali Cloud and other environments as request generators.
+* **Edge Side**：Requests received by the edge-side entry access point (eAP) are forwarded by the scheduling algorithm to the edge cluster or cloud cluster for request processing.
+* **Cloud Side**：Compared to the edge cluster, the cloud cluster has more powerful computing and processing capabilities, and more complex and intelligent applications are deployed in the cloud.
+* **Private Registry**：A private pegistry is configured for the system platform, in which a large number of service images are stored to facilitate the deployment of services in each cluster.
+* **System Monitor**：System information such as the number of nodes, resource utilisation, real-time scheduling of tasks, processing of tasks and deployment of containerised services will all be presented by the front-end.
 
 
 ## Part of the Important Implement and Design
