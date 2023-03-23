@@ -24,7 +24,7 @@ PVE virtual cluster construction:
 ****
 Modification and recompilation of Rancher (a K8S monitoring open source architecture)：
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig4.png" height="200" />  <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig2.png" height="200" /><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig4.png" height="150" />  <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig2.png" height="150" /><br/>
 ****
 Custom visual web creation based on the Echarts library：
 
