@@ -7,7 +7,7 @@ My undergraduate work (awarded Outstanding Final Design), a K8s-based edge cloud
 https://www.bilibili.com/video/BV1ZX4y1o7vh/
 
 <!-- ![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig.png) -->
-<img src="github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig.png" width="200" height="200"/><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig.png" width="200" height="200"/><br/>
 <!-- ![screen](https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png) -->
 
 ## Project
