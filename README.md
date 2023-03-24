@@ -1,7 +1,7 @@
 # Edg-cloud System
 
 ## Introduction
-My undergraduate work (awarded Outstanding Final Design), a K8s-based edge cloud system consisting of (i) a front-end based on Rancher and Echarts visualisation with lots of interesting interactive animations, and (ii) multiple back-ends supported by classical, intelligent scheduling algorithms.
+My undergraduate work (awarded outstanding final design), a K8s-based edge cloud system consisting of (i) a front-end based on Rancher and Echarts visualisation with lots of interesting interactive animations, and (ii) multiple back-ends supported by classical, intelligent scheduling algorithms.
 
 ## Video demonstration
 
