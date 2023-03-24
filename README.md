@@ -27,7 +27,7 @@ The cloud edge system architecture is as follows:
 * **System Monitor**：System information such as the number of nodes, resource utilisation, real-time scheduling of tasks, processing of tasks and deployment of containerised services, etc., will all be presented by the front-end.
 
 
-## Part of the Important Implement and Design
+## Part of Implement and Design
 
 PVE virtual cluster construction:
 
