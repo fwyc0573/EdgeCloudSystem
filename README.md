@@ -31,7 +31,7 @@ The cloud edge system architecture is as follows:
 
 PVE virtual cluster construction:
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fi5.png" width="400" /><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fi5.png" width="500" /><br/>
 ****
 Modification and recompilation of Rancher (a K8S monitoring open source architecture)：
 
@@ -39,13 +39,13 @@ Modification and recompilation of Rancher (a K8S monitoring open source architec
 ****
 Custom visual web creation based on the Echarts library. In fact, I am very proud of the implementation of the central topology diagram. Because, using the current visualisation library to present the topology is extremely easy to be limited in terms of interactivity. For the topology of the system, I have combined the various drawing modes of the Echarts library to ensure a high level of interactivity：
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig6.png" width="400" /><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig6.png" height="210" />  <img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/g1.gif" height="210" /><br/>
 ****
 Containerisation and deployment of several popular GitHub AI applications：
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig3.png" width="400" /><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig3.png" width="610" /><br/>
 ****
 The system back-end contains greedy algorithms for container services and deep reinforcement learning scheduling algorithms：
 
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png" width="400" /><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig1.png" width="610" /><br/>
 
