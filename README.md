@@ -17,7 +17,7 @@ The cloud edge system architecture is as follows:
 
 
 <div align=center>
-<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width="500" /><br/>
+<img src="https://github.com/fwyc0573/EdgeCloudSystem/blob/main/customizedWeb/fig/fig7.png" width="700" /><br/>
 </div>
 
 * **Device Side**：The device side is a workload generation. In order to simulate the generation of user requests, the request generation is simulated by using Ali Cloud and other environments as request generators.
