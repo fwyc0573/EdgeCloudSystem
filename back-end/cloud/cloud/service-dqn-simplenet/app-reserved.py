@@ -41,8 +41,8 @@ class BasicModule(t.nn.Module):
         保存模型，默认使用“模型名字+时间”作为文件名
         """
         if name is None:
-            prefix = 'checkpoints/' + self.model_name + '_'
-            name = time.strftime(prefix + '%m%d_%H:%M:%S.pth')
+            prefix = "checkpoints/" + self.model_name + "_"
+            name = time.strftime(prefix + "%m%d_%H:%M:%S.pth")
 
         t.save(self.state_dict(), name)
         return name
@@ -54,17 +54,13 @@ class BasicModule(t.nn.Module):
 class SimpleNet(BasicModule):
     def __init__(self, state_size, action_size=420):
         super(SimpleNet, self).__init__()
-        self.model_name = 'SimpleNet'
+        self.model_name = "SimpleNet"
         self.fc1 = nn.Linear(state_size, 200)
         self.fc1.weight.data.normal_(mean=0, std=0.1)
         self.fc2 = nn.Linear(200, action_size)
         self.fc2.weight.data.normal_(mean=0, std=0.1)
 
-        self.classifier = nn.Sequential(
-            self.fc1,
-            nn.ReLU(),
-            self.fc2
-        )
+        self.classifier = nn.Sequential(self.fc1, nn.ReLU(), self.fc2)
 
     def forward(self, x):
         action = self.classifier(x)
@@ -72,8 +68,19 @@ class SimpleNet(BasicModule):
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, replay_memory_size, mini_batch_size, replace_target_period,
-                 gamma, epsilon=1.0, epsilon_min=0.01, epsilon_decrement=0.001, learning_rate=0.005):
+    def __init__(
+        self,
+        state_size,
+        action_size,
+        replay_memory_size,
+        mini_batch_size,
+        replace_target_period,
+        gamma,
+        epsilon=1.0,
+        epsilon_min=0.01,
+        epsilon_decrement=0.001,
+        learning_rate=0.005,
+    ):
         self.state_size = state_size
         self.action_size = action_size
         # 能存多少数据
@@ -114,7 +121,7 @@ class DQNAgent:
 
     # 这些量都是tensor
     def remember(self, state, action, reward, next_state):
-        if not hasattr(self, 'memory_counter'):
+        if not hasattr(self, "memory_counter"):
             self.memory_counter = 0
         transition = t.cat((state, action, reward, next_state), dim=1)
         index = self.memory_counter % self.replay_memory_size
@@ -133,17 +140,25 @@ class DQNAgent:
 
     def replay(self):
         if self.memory_counter > self.replay_memory_size:
-            sample_index = np.random.choice(self.replay_memory_size, size=self.mini_batch_size)
+            sample_index = np.random.choice(
+                self.replay_memory_size, size=self.mini_batch_size
+            )
         else:
-            sample_index = np.random.choice(self.memory_counter, size=self.mini_batch_size)
+            sample_index = np.random.choice(
+                self.memory_counter, size=self.mini_batch_size
+            )
         # 训练时，每次取经验池中的batchsize条observation
         batch_memory = self.memory[sample_index, :]
 
         # obtain the samples
-        b_s = Variable(t.FloatTensor(batch_memory[:, :self.state_size]))
-        b_a = Variable(t.IntTensor(batch_memory[:, self.state_size:self.state_size + 1].int()))
-        b_r = Variable(t.FloatTensor(batch_memory[:, self.state_size + 1:self.state_size + 2]))
-        b_s_ = Variable(t.FloatTensor(batch_memory[:, -self.state_size:]))
+        b_s = Variable(t.FloatTensor(batch_memory[:, : self.state_size]))
+        b_a = Variable(
+            t.IntTensor(batch_memory[:, self.state_size : self.state_size + 1].int())
+        )
+        b_r = Variable(
+            t.FloatTensor(batch_memory[:, self.state_size + 1 : self.state_size + 2])
+        )
+        b_s_ = Variable(t.FloatTensor(batch_memory[:, -self.state_size :]))
 
         # 将当前state输入训练网络，得到Q(s,a)
         q_eval = self.eval_model.forward(b_s)
@@ -158,8 +173,10 @@ class DQNAgent:
         # obtain the target q values for the comparison with eval q values
         for idx_mini_batch in range(self.mini_batch_size):
             action = int(batch_memory[idx_mini_batch, self.state_size].numpy())
-            q_target[idx_mini_batch, action] = batch_memory[idx_mini_batch, self.state_size + 1] + self.gamma * \
-                                               q_target[idx_mini_batch].view(1, -1).max(1)[0]
+            q_target[idx_mini_batch, action] = (
+                batch_memory[idx_mini_batch, self.state_size + 1]
+                + self.gamma * q_target[idx_mini_batch].view(1, -1).max(1)[0]
+            )
 
         # mini-batch
         loss = self.loss_func(q_eval, q_target)
@@ -167,7 +184,11 @@ class DQNAgent:
         loss.backward()
         self.optimizer.step()
 
-        self.epsilon = self.epsilon - self.epsilon_decrement if self.epsilon > self.epsilon_min else self.epsilon_min
+        self.epsilon = (
+            self.epsilon - self.epsilon_decrement
+            if self.epsilon > self.epsilon_min
+            else self.epsilon_min
+        )
 
         # record the learning step already been done
         self.learning_step = self.learning_step + 1
@@ -196,15 +217,21 @@ def obtain_actual_action(map_fn, control_action_fn):
 
 def calc_reward(success_t, total_task_sum):
     if total_task_sum == 0:
-        return t.sum(success_t, dim=1) 
+        return t.sum(success_t, dim=1)
     else:
         success_t = t.sum(success_t, dim=1) * 100 / total_task_sum
         return success_t
 
 
-def q_learning_placement(master_name, update_interval, tasks_execute_situation_on_each_node_dict,
-                         current_service_on_each_node_dict,
-                         stuck_tasks_situation_on_each_node_dict, resources_on_each_node_dict, epoch_index):
+def q_learning_placement(
+    master_name,
+    update_interval,
+    tasks_execute_situation_on_each_node_dict,
+    current_service_on_each_node_dict,
+    stuck_tasks_situation_on_each_node_dict,
+    resources_on_each_node_dict,
+    epoch_index,
+):
     """
     强化学习
     分析：
@@ -244,8 +271,8 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
     param4 = resources_on_each_node_dict[master_name]
 
     for key, the_dict in param1.items():
-        success[int(key) - 1] = the_dict['success']
-        failure[int(key) - 1] = the_dict['failure']
+        success[int(key) - 1] = the_dict["success"]
+        failure[int(key) - 1] = the_dict["failure"]
 
     total_task_sum = np.sum(success) + np.sum(failure)
 
@@ -254,18 +281,18 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
             service[int(key2) - 1] += value2
 
     for key, the_dict in param3.items():
-        stuck[int(key) - 1] = the_dict['stuck']
+        stuck[int(key) - 1] = the_dict["stuck"]
 
     for key, the_dict in param4.items():
-        cpu = the_dict['cpu']
-        cpu_percent = cpu['percent']
-        cpu_number = cpu['number']
-        memory = the_dict['memory']
-        memory_percent = memory['percent']
-        memory_number = memory['number']
-        ephemeral_storage = the_dict['storage']
-        ephemeral_storage_percent = ephemeral_storage['percent']
-        ephemeral_storage_number = ephemeral_storage['number']
+        cpu = the_dict["cpu"]
+        cpu_percent = cpu["percent"]
+        cpu_number = cpu["number"]
+        memory = the_dict["memory"]
+        memory_percent = memory["percent"]
+        memory_number = memory["number"]
+        ephemeral_storage = the_dict["storage"]
+        ephemeral_storage_percent = ephemeral_storage["percent"]
+        ephemeral_storage_number = ephemeral_storage["number"]
         if int(memory_percent) + 6 <= 90:
             if_delete = np.array([0])
             break
@@ -297,16 +324,24 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
     CONTROL_ACTION_MAP = np.arange(flat_action_num).reshape(DELETE_ACTION, ADD_ACTION)
 
     if epoch_index == 0:
-        agent = DQNAgent(state_size=STATE_SIZE, action_size=ACTION_SIZE, replay_memory_size=REPLAY_MEMORY_SIZE,
-                         mini_batch_size=MINI_BATCH_SIZE, replace_target_period=REPLACE_TARGET_PERIOD, gamma=GAMMA,
-                         epsilon=EPSILON, epsilon_min=EPSILON_MIN, epsilon_decrement=EPSILON_DECREMENT,
-                         learning_rate=LEARNING_RATE)
+        agent = DQNAgent(
+            state_size=STATE_SIZE,
+            action_size=ACTION_SIZE,
+            replay_memory_size=REPLAY_MEMORY_SIZE,
+            mini_batch_size=MINI_BATCH_SIZE,
+            replace_target_period=REPLACE_TARGET_PERIOD,
+            gamma=GAMMA,
+            epsilon=EPSILON,
+            epsilon_min=EPSILON_MIN,
+            epsilon_decrement=EPSILON_DECREMENT,
+            learning_rate=LEARNING_RATE,
+        )
     else:
-        if not os.path.exists('/home/service/dqn-simplenet'):
-            os.makedirs('/home/service/dqn-simplenet')
+        if not os.path.exists("/home/service/dqn-simplenet"):
+            os.makedirs("/home/service/dqn-simplenet")
 
-        agent_path = '/home/service/dqn-simplenet/agent_pickled.txt'
-        with open(agent_path, 'rb') as f:
+        agent_path = "/home/service/dqn-simplenet/agent_pickled.txt"
+        with open(agent_path, "rb") as f:
             try:
                 agent = pickle.load(f)
             except Exception as e:
@@ -327,15 +362,15 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
     if_delete = np.array([1])
     if next_delete == 0:
         for key, the_dict in param4.items():
-            cpu = the_dict['cpu']
-            cpu_percent = cpu['percent']
-            cpu_number = cpu['number']
-            memory = the_dict['memory']
-            memory_percent = memory['percent']
-            memory_number = memory['number']
-            ephemeral_storage = the_dict['storage']
-            ephemeral_storage_percent = ephemeral_storage['percent']
-            ephemeral_storage_number = ephemeral_storage['number']
+            cpu = the_dict["cpu"]
+            cpu_percent = cpu["percent"]
+            cpu_number = cpu["number"]
+            memory = the_dict["memory"]
+            memory_percent = memory["percent"]
+            memory_number = memory["number"]
+            ephemeral_storage = the_dict["storage"]
+            ephemeral_storage_percent = ephemeral_storage["percent"]
+            ephemeral_storage_number = ephemeral_storage["number"]
             if int(memory_percent) + 6 <= 90:
                 if_delete = np.array([0])
                 break
@@ -353,21 +388,23 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
     # if there are enough transitions, perform learning
     if epoch_index >= MINI_BATCH_SIZE:
         cur_loss = agent.replay()
-        with open('/home/service/dqn-simplenet/loss_hist.csv', 'a+', newline="") as f1:
+        with open("/home/service/dqn-simplenet/loss_hist.csv", "a+", newline="") as f1:
             csv_write = csv.writer(f1)
             csv_write.writerow([epoch_index, cur_loss.item()])
             f1.close()
 
     # record the reward
     if epoch_index > 0:
-        with open('/home/service/dqn-simplenet/reward_hist.csv', 'a+', newline="") as f2:
+        with open(
+            "/home/service/dqn-simplenet/reward_hist.csv", "a+", newline=""
+        ) as f2:
             csv_write = csv.writer(f2)
             csv_write.writerow([epoch_index, reward.item() / 100])  # 记得要改
             f2.close()
 
-    if not os.path.exists('/home/service/dqn-simplenet'):
-        os.makedirs('/home/service/dqn-simplenet')
-    with open('/home/service/dqn-simplenet/agent_pickled.txt', 'wb') as f:
+    if not os.path.exists("/home/service/dqn-simplenet"):
+        os.makedirs("/home/service/dqn-simplenet")
+    with open("/home/service/dqn-simplenet/agent_pickled.txt", "wb") as f:
         pickle.dump(agent, f)
         f.close()
 
@@ -377,7 +414,7 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
 
 
 # CPU
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # initialize our Flask application
 app = flask.Flask(__name__)
@@ -386,14 +423,21 @@ app = flask.Flask(__name__)
 @app.route("/predict", methods=["POST"])
 def predict():
     if flask.request.method == "POST":
-        observation = flask.request.form['observation']
+        observation = flask.request.form["observation"]
         observation = json.loads(observation)
-        result = q_learning_placement(observation[0], observation[1], observation[2], observation[3],
-                                      observation[4], observation[5], observation[6])
+        result = q_learning_placement(
+            observation[0],
+            observation[1],
+            observation[2],
+            observation[3],
+            observation[4],
+            observation[5],
+            observation[6],
+        )
     return flask.jsonify(result)
 
 
 # if this is the main thread of execution first load the model and
 # then start the server
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=4002, threaded=True)
+    app.run(host="0.0.0.0", port=4002, threaded=True)

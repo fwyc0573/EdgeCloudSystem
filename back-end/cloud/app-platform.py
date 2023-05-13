@@ -16,36 +16,40 @@ from cloud.cloud import valueclone_nested_dict_proxy
 app = Flask(__name__)
 
 
-@app.route('/ExecuteAll')
+@app.route("/ExecuteAll")
 def send_data():
     with mdata_lock, share_lock1, share_lock3:
         send_dict = {
-            'count': valueclone_nested_dict_proxy(mdata),
-            'tasksExecute': valueclone_nested_dict_proxy(manager_tasks_execute_situation_on_each_node_dict),
-            'stuckTasks': valueclone_nested_dict_proxy(manager_stuck_tasks_situation_on_each_node_dict),
+            "count": valueclone_nested_dict_proxy(mdata),
+            "tasksExecute": valueclone_nested_dict_proxy(
+                manager_tasks_execute_situation_on_each_node_dict
+            ),
+            "stuckTasks": valueclone_nested_dict_proxy(
+                manager_stuck_tasks_situation_on_each_node_dict
+            ),
         }
-    print('send_dict----------')
+    print("send_dict----------")
     print(send_dict)
-    final_dict = {'count': send_dict['count']}
+    final_dict = {"count": send_dict["count"]}
     temp1 = {}
-    tasks_execute_dict = send_dict['tasksExecute']
+    tasks_execute_dict = send_dict["tasksExecute"]
     for name, value1 in tasks_execute_dict.items():
         temp1[name] = {}
-        temp1[name]['success'] = 0
-        temp1[name]['failure'] = 0
+        temp1[name]["success"] = 0
+        temp1[name]["failure"] = 0
         for the_type, value2 in value1.items():
-            temp1[name]['success'] += value2['success']
-            temp1[name]['failure'] += value2['failure']
+            temp1[name]["success"] += value2["success"]
+            temp1[name]["failure"] += value2["failure"]
     temp2 = {}
-    stuck_tasks_dict = send_dict['stuckTasks']
+    stuck_tasks_dict = send_dict["stuckTasks"]
     for name, value1 in stuck_tasks_dict.items():
         temp2[name] = len(value1)
 
     for k, v in temp1.items():
         if temp2[k] is not None:
-            temp1[k]['stuck'] = temp2[k]
-    final_dict['tasks_all'] = temp1
-    print('final_dict----------')
+            temp1[k]["stuck"] = temp2[k]
+    final_dict["tasks_all"] = temp1
+    print("final_dict----------")
     print(final_dict)
     thisMission = json.dumps(final_dict)
     resp = make_response(thisMission)  # 响应体
@@ -54,7 +58,7 @@ def send_data():
     return resp
 
 
-@app.route('/algorithmChosen', methods=['post'])
+@app.route("/algorithmChosen", methods=["post"])
 def algorithm_choose():
     if request.data:  # 检测是否有数据
         # params = request.data.decode('utf-8')
@@ -64,12 +68,12 @@ def algorithm_choose():
         # return jsonify(prams)
         # 返回JSON数据。
         params = request.form
-        print('algorithm_choose开始打印了')
+        print("algorithm_choose开始打印了")
         print(params)
 
 
-if __name__ == '__main__':
-    print('!!!!!!!!!!!')
+if __name__ == "__main__":
+    print("!!!!!!!!!!!")
     p1 = multiprocessing.Process(target=execute)
     p1.start()
 
@@ -87,35 +91,52 @@ if __name__ == '__main__':
         manager_stuck_tasks_situation_on_each_node_dict = manager.dict()
         manager_resources_on_each_node_dict = manager.dict()
 
-        p4 = multiprocessing.Process(target=collect_tasks_execute_situation_on_each_node,
-                                     args=(manager_tasks_execute_situation_on_each_node_dict, share_lock1))
+        p4 = multiprocessing.Process(
+            target=collect_tasks_execute_situation_on_each_node,
+            args=(manager_tasks_execute_situation_on_each_node_dict, share_lock1),
+        )
         p4.start()
 
-        p5 = multiprocessing.Process(target=current_service_on_each_node,
-                                     args=(manager_current_service_on_each_node_dict, share_lock2))
+        p5 = multiprocessing.Process(
+            target=current_service_on_each_node,
+            args=(manager_current_service_on_each_node_dict, share_lock2),
+        )
         p5.start()
 
-        p6 = multiprocessing.Process(target=stuck_tasks_situation_on_each_node,
-                                     args=(manager_stuck_tasks_situation_on_each_node_dict, share_lock3))
+        p6 = multiprocessing.Process(
+            target=stuck_tasks_situation_on_each_node,
+            args=(manager_stuck_tasks_situation_on_each_node_dict, share_lock3),
+        )
         p6.start()
 
-        p7 = multiprocessing.Process(target=resources_on_each_node, args=(
-            manager_resources_on_each_node_dict, share_lock4))
+        p7 = multiprocessing.Process(
+            target=resources_on_each_node,
+            args=(manager_resources_on_each_node_dict, share_lock4),
+        )
         p7.start()
 
-        p2 = multiprocessing.Process(target=update_pod_cloud,
-                                     args=(manager_tasks_execute_situation_on_each_node_dict,
-                                           manager_current_service_on_each_node_dict,
-                                           manager_stuck_tasks_situation_on_each_node_dict,
-                                           manager_resources_on_each_node_dict,
-                                           share_lock1, share_lock2, share_lock3, share_lock4))
+        p2 = multiprocessing.Process(
+            target=update_pod_cloud,
+            args=(
+                manager_tasks_execute_situation_on_each_node_dict,
+                manager_current_service_on_each_node_dict,
+                manager_stuck_tasks_situation_on_each_node_dict,
+                manager_resources_on_each_node_dict,
+                share_lock1,
+                share_lock2,
+                share_lock3,
+                share_lock4,
+            ),
+        )
         p2.start()
 
-        mdata = manager.dict({
-            'success': 0,
-            'failure': 0,
-            'stuck': 0,
-        })
+        mdata = manager.dict(
+            {
+                "success": 0,
+                "failure": 0,
+                "stuck": 0,
+            }
+        )
         p3 = multiprocessing.Process(target=collect_data, args=(mdata, mdata_lock))
         p3.start()
-        app.run(host='0.0.0.0', port=5000)
+        app.run(host="0.0.0.0", port=5000)

@@ -15,9 +15,15 @@ import re
 import csv
 
 
-def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situation_on_each_node_dict,
-                               current_service_on_each_node_dict,
-                               stuck_tasks_situation_on_each_node_dict, resources_on_each_node_dict, epoch_index):
+def greedy_algorithm_placement(
+    master_name,
+    update_interval,
+    tasks_execute_situation_on_each_node_dict,
+    current_service_on_each_node_dict,
+    stuck_tasks_situation_on_each_node_dict,
+    resources_on_each_node_dict,
+    epoch_index,
+):
     """
     贪心算法
 
@@ -56,18 +62,38 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
     total_task_sum = 0
 
     result = []
-    failure_box = [-2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2]
+    failure_box = [
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+    ]
     success_box = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 
     # 选第一个参数
     first_dict = tasks_execute_situation_on_each_node_dict[master_name]
     for type in first_dict:
         value = first_dict[type]
-        failure_percent = value['failure'] / \
-                          (value['success'] + value['failure'])
+        failure_percent = value["failure"] / (value["success"] + value["failure"])
 
         # 加上成功失败的
-        total_task_sum += value['success'] + value['failure']
+        total_task_sum += value["success"] + value["failure"]
         failure_box[int(type) - 1] = failure_percent
         success_box[int(type) - 1] = 1 - failure_percent
     first_param = None
@@ -77,15 +103,15 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
     second_dict = resources_on_each_node_dict[master_name]
     for node in second_dict:
         resources = second_dict[node]
-        cpu = resources['cpu']
-        cpu_percent = cpu['percent']
-        cpu_number = cpu['number']
-        memory = resources['memory']
-        memory_percent = memory['percent']
-        memory_number = memory['number']
-        ephemeral_storage = resources['storage']
-        ephemeral_storage_percent = ephemeral_storage['percent']
-        ephemeral_storage_number = ephemeral_storage['number']
+        cpu = resources["cpu"]
+        cpu_percent = cpu["percent"]
+        cpu_number = cpu["number"]
+        memory = resources["memory"]
+        memory_percent = memory["percent"]
+        memory_number = memory["number"]
+        ephemeral_storage = resources["storage"]
+        ephemeral_storage_percent = ephemeral_storage["percent"]
+        ephemeral_storage_number = ephemeral_storage["number"]
         if int(memory_percent) < 90:
             if_delete = False
 
@@ -110,7 +136,7 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
     else:
         first_param = 0
 
-    with open('/home/service/greedy/error.csv', 'a+', newline="") as f:
+    with open("/home/service/greedy/error.csv", "a+", newline="") as f:
         csv_write = csv.writer(f)
         csv_write.writerow([first_param])  # 记得要改
         f.close()
@@ -139,12 +165,12 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
         second_param = 1
         fifth_dict = stuck_tasks_situation_on_each_node_dict[master_name]
         for type in fifth_dict:
-            num = fifth_dict[type]['stuck']
+            num = fifth_dict[type]["stuck"]
             if num > max_stuck:
                 max_stuck = num
                 second_param = int(type)
 
-    with open('/home/service/greedy/error.csv', 'a+', newline="") as f:
+    with open("/home/service/greedy/error.csv", "a+", newline="") as f:
         csv_write = csv.writer(f)
         csv_write.writerow([second_param])  # 记得要改
         csv_write.writerow([master_name])
@@ -152,12 +178,12 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
 
     success = np.zeros(20).astype(int)
     for key, the_dict in first_dict.items():
-        success[int(key) - 1] = the_dict['success']
+        success[int(key) - 1] = the_dict["success"]
 
     reward = success.sum()
 
     if epoch_index > 0:
-        with open('/home/service/greedy/reward_hist.csv', 'a+', newline="") as f2:
+        with open("/home/service/greedy/reward_hist.csv", "a+", newline="") as f2:
             csv_write = csv.writer(f2)
             csv_write.writerow([epoch_index, reward / total_task_sum])  # 记得要改
             f2.close()
@@ -170,7 +196,7 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
 
 
 # CPU
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # initialize our Flask application
 app = flask.Flask(__name__)
@@ -179,14 +205,21 @@ app = flask.Flask(__name__)
 @app.route("/predict", methods=["POST"])
 def predict():
     if flask.request.method == "POST":
-        observation = flask.request.form['observation']
+        observation = flask.request.form["observation"]
         observation = json.loads(observation)
-        result = greedy_algorithm_placement(observation[0], observation[1], observation[2], observation[3],
-                                            observation[4], observation[5], observation[6])
+        result = greedy_algorithm_placement(
+            observation[0],
+            observation[1],
+            observation[2],
+            observation[3],
+            observation[4],
+            observation[5],
+            observation[6],
+        )
     return flask.jsonify(result)
 
 
 # if this is the main thread of execution first load the model and
 # then start the server
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=4001, threaded=True)
+    app.run(host="0.0.0.0", port=4001, threaded=True)

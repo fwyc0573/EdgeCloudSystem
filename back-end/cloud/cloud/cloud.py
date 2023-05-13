@@ -47,18 +47,16 @@ EDGE_MASTER_RECEIVE_RESULT_PORT = 9009
 
 K3S_CONFIG = ["./cloud/config1.yaml"]
 
-ALG_PORT = ['4001', '4002']
-ALG_NAME = ['service-greedy', 'service-dqn']
-ALG_PATH = ['./app/service-greedy/service.yaml', './app/service-dqn/service.yaml']
+ALG_PORT = ["4001", "4002"]
+ALG_NAME = ["service-greedy", "service-dqn"]
+ALG_PATH = ["./app/service-greedy/service.yaml", "./app/service-dqn/service.yaml"]
 
 """
 各种变量
 """
 MAX_NUM_MASTER = 8
 # 收集的总共的state
-state = {
-    'success': 0, 'failure': 0, 'stuck': 0
-}
+state = {"success": 0, "failure": 0, "stuck": 0}
 
 
 # 上一次编排至今各个节点中各类型请求成功与失败数量
@@ -86,9 +84,9 @@ state = {
 # 作用：将处理结果发送给终端
 def send_task_json(client, result):
     result = json.dumps(result)
-    task = bytes(result.encode('utf-8'))
+    task = bytes(result.encode("utf-8"))
     task_len = len(task)
-    task_len = task_len.to_bytes(8, byteorder='big')
+    task_len = task_len.to_bytes(8, byteorder="big")
     client.sendall(task_len)
     client.sendall(task)
 
@@ -110,6 +108,7 @@ def offload(pod_list):
 # 输出：请求处理结果
 # 作用：处理请求
 
+
 def run_once(command):
     return os.popen(command).read()
 
@@ -126,30 +125,35 @@ def run(command, keyword):
 
 def run_req(master_name, offload_epoch_index, req, trans_from_center_to_cloud):
     execute_start_time = time.time()
-    pod_list = check_pod('service')
+    pod_list = check_pod("service")
     pod_index = offload(pod_list)
     current_pod = pod_list[pod_index]
-    while current_pod.status != 'Running':
-        pod_list = check_pod('service')
+    while current_pod.status != "Running":
+        pod_list = check_pod("service")
         current_pod = pod_list[pod_index]
-    print('开始任务执行.')
-    val1 = run(f'curl http://{current_pod.ip}:3100/predict -X POST -d observation={req[0]}', 'Time:')
+    print("开始任务执行.")
+    val1 = run(
+        f"curl http://{current_pod.ip}:3100/predict -X POST -d observation={req[0]}",
+        "Time:",
+    )
     result_return_to_cloud = []
     result_return_to_cloud[0] = offload_epoch_index
 
-    mission = {'success': 0, 'failure': 0, 'stuck': -1}
-    detail_mission = {'name': master_name, 'type': req[0], 'success': 0, 'failure': 0}
+    mission = {"success": 0, "failure": 0, "stuck": -1}
+    detail_mission = {"name": master_name, "type": req[0], "success": 0, "failure": 0}
 
-    execute_total_time = time.time() - execute_start_time + 2 * trans_from_center_to_cloud
+    execute_total_time = (
+        time.time() - execute_start_time + 2 * trans_from_center_to_cloud
+    )
     result_return_to_cloud[1] = execute_total_time
 
     if execute_total_time <= req[3]:
-        mission['success'] += 1
-        detail_mission['success'] += 1
+        mission["success"] += 1
+        detail_mission["success"] += 1
         result_return_to_cloud[2] = 1
     else:
-        mission['failure'] += 1
-        detail_mission['failure'] += 1
+        mission["failure"] += 1
+        detail_mission["failure"] += 1
         result_return_to_cloud[2] = 0
 
     result_return_to_cloud[3] = req[0]
@@ -180,19 +184,28 @@ def receive_request_from_edge(server):
         while True:
             conn, addr = server.accept()
             task_len = conn.recv(8)
-            task_len = int.from_bytes(task_len, byteorder='big')
+            task_len = int.from_bytes(task_len, byteorder="big")
             req = conn.recv(task_len)
-            req = json.loads(req.decode('utf-8'))
+            req = json.loads(req.decode("utf-8"))
             master_name = req[0]
             offload_epoch_index = req[1]
             req = req[2]
-            print('已接受到' + str(req[0]) + '号服务请求，offload编号为' + str(offload_epoch_index) + '开始执行.')
+            print(
+                "已接受到"
+                + str(req[0])
+                + "号服务请求，offload编号为"
+                + str(offload_epoch_index)
+                + "开始执行."
+            )
 
             arrive_from_center_to_cloud = time.time()
             trans_from_center_to_cloud = arrive_from_center_to_cloud - req[4]
             # 此处直接使用贪心即可
             # 不确定这里到底是不是get
-            pool.apply_async(run_req, (master_name, offload_epoch_index, req, trans_from_center_to_cloud))
+            pool.apply_async(
+                run_req,
+                (master_name, offload_epoch_index, req, trans_from_center_to_cloud),
+            )
 
 
 def execute():
@@ -217,23 +230,28 @@ def collect_data(managerState, mdata_lock):
     while True:
         c, addr = s.accept()
         mission_len = c.recv(8)
-        mission_len = int.from_bytes(mission_len, byteorder='big')
+        mission_len = int.from_bytes(mission_len, byteorder="big")
         this_mission = c.recv(mission_len)
-        mission = json.loads(this_mission.decode('utf-8'))
+        mission = json.loads(this_mission.decode("utf-8"))
         print(mission)
-        state['success'] += mission['success']
-        state['failure'] += mission['failure']
-        state['stuck'] += mission['stuck']
+        state["success"] += mission["success"]
+        state["failure"] += mission["failure"]
+        state["stuck"] += mission["stuck"]
         with mdata_lock:
-            managerState['success'] = state['success']
-            managerState['failure'] = state['failure']
-            managerState['stuck'] = state['stuck']
-        print(str(state['success']) + " " +
-              str(state['failure']) + " " + str(state['stuck']))
+            managerState["success"] = state["success"]
+            managerState["failure"] = state["failure"]
+            managerState["stuck"] = state["stuck"]
+        print(
+            str(state["success"])
+            + " "
+            + str(state["failure"])
+            + " "
+            + str(state["stuck"])
+        )
         c.close()
-        with open('./collect.csv', 'a+', newline="") as f:
+        with open("./collect.csv", "a+", newline="") as f:
             csv_write = csv.writer(f)
-            data_row = [state['success'], state['failure'], state['stuck']]
+            data_row = [state["success"], state["failure"], state["stuck"]]
             csv_write.writerow(data_row)
             f.close()
 
@@ -245,10 +263,11 @@ def collect_data(managerState, mdata_lock):
 
 def valueclone_nested_dict_proxy(dict_proxy):
     """
-        clone 出一份不含 proxy 的普通 dict
-        注意只能用于树状结构的嵌套 dict proxy
+    clone 出一份不含 proxy 的普通 dict
+    注意只能用于树状结构的嵌套 dict proxy
     """
     from multiprocessing.managers import BaseProxy
+
     dict_copy = dict_proxy._getvalue()
     for key, value in dict_copy.items():
         if isinstance(value, BaseProxy):
@@ -260,9 +279,16 @@ def valueclone_nested_dict_proxy(dict_proxy):
 # 重新编排pod的进程
 
 
-def update_pod_cloud(manager_tasks_execute_situation_on_each_node_dict, manager_current_service_on_each_node_dict,
-                     manager_stuck_tasks_situation_on_each_node_dict, manager_resources_on_each_node_dict,
-                     share_lock1, share_lock2, share_lock3, share_lock4):
+def update_pod_cloud(
+    manager_tasks_execute_situation_on_each_node_dict,
+    manager_current_service_on_each_node_dict,
+    manager_stuck_tasks_situation_on_each_node_dict,
+    manager_resources_on_each_node_dict,
+    share_lock1,
+    share_lock2,
+    share_lock3,
+    share_lock4,
+):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setblocking(1)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -275,34 +301,48 @@ def update_pod_cloud(manager_tasks_execute_situation_on_each_node_dict, manager_
     while True:
         c, addr = server.accept()
         pre_len = c.recv(8)
-        pre_len = int.from_bytes(pre_len, byteorder='big')
+        pre_len = int.from_bytes(pre_len, byteorder="big")
         pre = c.recv(pre_len)
-        pre = json.loads(pre.decode('utf-8'))
+        pre = json.loads(pre.decode("utf-8"))
         this_master_name = pre[0]
         update_interval = pre[1]
         with share_lock1, share_lock2, share_lock3, share_lock4:
             # param1 = tasks_execute_situation_on_each_node_dict
-            print('--------------------param1')
+            print("--------------------param1")
             param1 = valueclone_nested_dict_proxy(
-                manager_tasks_execute_situation_on_each_node_dict)
-            print('--------------------param2')
+                manager_tasks_execute_situation_on_each_node_dict
+            )
+            print("--------------------param2")
             param2 = valueclone_nested_dict_proxy(
-                manager_current_service_on_each_node_dict)
-            print('--------------------param3')
+                manager_current_service_on_each_node_dict
+            )
+            print("--------------------param3")
             param3 = valueclone_nested_dict_proxy(
-                manager_stuck_tasks_situation_on_each_node_dict)
-            print('--------------------param4')
-            param4 = valueclone_nested_dict_proxy(
-                manager_resources_on_each_node_dict)
+                manager_stuck_tasks_situation_on_each_node_dict
+            )
+            print("--------------------param4")
+            param4 = valueclone_nested_dict_proxy(manager_resources_on_each_node_dict)
 
             # 想要写对应的dict必须持有对应的锁
             # 拿到锁，clone完了clear，最后放开锁
-            clear_all(this_master_name, manager_tasks_execute_situation_on_each_node_dict,
-                      manager_current_service_on_each_node_dict,
-                      manager_stuck_tasks_situation_on_each_node_dict, manager_resources_on_each_node_dict)
-        print('---------------------------------开始dqn')
+            clear_all(
+                this_master_name,
+                manager_tasks_execute_situation_on_each_node_dict,
+                manager_current_service_on_each_node_dict,
+                manager_stuck_tasks_situation_on_each_node_dict,
+                manager_resources_on_each_node_dict,
+            )
+        print("---------------------------------开始dqn")
         greedy_result = placement_chosen(
-            this_master_name, update_interval, param1, param2, param3, param4, 1, epoch_index)
+            this_master_name,
+            update_interval,
+            param1,
+            param2,
+            param3,
+            param4,
+            1,
+            epoch_index,
+        )
         # 发送回去
         greedy_result = [epoch_index, greedy_result]
         send_task_json(c, greedy_result)
@@ -322,7 +362,9 @@ def clear_all(this_master_name, *dict_proxies):
 
 
 # 这是一个单独的进程
-def collect_tasks_execute_situation_on_each_node(manager_tasks_execute_situation_on_each_node_dict, share_lock):
+def collect_tasks_execute_situation_on_each_node(
+    manager_tasks_execute_situation_on_each_node_dict, share_lock
+):
     print("收集任务执行进程启动！")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setblocking(1)
@@ -335,9 +377,9 @@ def collect_tasks_execute_situation_on_each_node(manager_tasks_execute_situation
         while True:
             c, addr = server.accept()
             mission_len = c.recv(8)
-            mission_len = int.from_bytes(mission_len, byteorder='big')
+            mission_len = int.from_bytes(mission_len, byteorder="big")
             this_mission = c.recv(mission_len)
-            mission = json.loads(this_mission.decode('utf-8'))
+            mission = json.loads(this_mission.decode("utf-8"))
 
             print(mission)
             if len(mission) == 2:
@@ -346,10 +388,10 @@ def collect_tasks_execute_situation_on_each_node(manager_tasks_execute_situation
             else:
                 mask = 0
             if len(mission) > 0:
-                name = mission['name']
-                type = mission['type']
-                success = mission['success']
-                failure = mission['failure']
+                name = mission["name"]
+                type = mission["type"]
+                success = mission["success"]
+                failure = mission["failure"]
             # if name in tasks_execute_situation_on_each_node_dict.keys():
             #     tmp_dict = tasks_execute_situation_on_each_node_dict[name]
             #     if type in tmp_dict:
@@ -366,17 +408,22 @@ def collect_tasks_execute_situation_on_each_node(manager_tasks_execute_situation
             # tmp2_dict['success'] += success
             # tmp2_dict['failure'] += failure
             with share_lock:
-                tmp1_dict = manager_tasks_execute_situation_on_each_node_dict.setdefault(
-                    name, manager.dict())
+                tmp1_dict = (
+                    manager_tasks_execute_situation_on_each_node_dict.setdefault(
+                        name, manager.dict()
+                    )
+                )
                 inner_dict = manager.dict()
-                inner_dict['success'] = 0
-                inner_dict['failure'] = 0
+                inner_dict["success"] = 0
+                inner_dict["failure"] = 0
                 tmp2_dict = tmp1_dict.setdefault(type, inner_dict)
-                tmp2_dict['success'] += success
-                tmp2_dict['failure'] += failure
+                tmp2_dict["success"] += success
+                tmp2_dict["failure"] += failure
 
             if mask == 1:
-                return_result = valueclone_nested_dict_proxy(manager_tasks_execute_situation_on_each_node_dict)
+                return_result = valueclone_nested_dict_proxy(
+                    manager_tasks_execute_situation_on_each_node_dict
+                )
                 send_task_json(c, return_result)
                 c.close()
 
@@ -396,18 +443,18 @@ def current_service_on_each_node(manager_current_service_on_each_node_dict, shar
             conn, addr = server.accept()
             # 格式[master_name, [pod.__dict__ for pod in update_info], 0]
             current_service_len = conn.recv(8)
-            current_service_len = int.from_bytes(current_service_len, byteorder='big')
+            current_service_len = int.from_bytes(current_service_len, byteorder="big")
             current_service = conn.recv(current_service_len)
-            current_service = json.loads(current_service.decode('utf-8'))
-            current_service[1] = [make_pod(pod_dict)
-                                  for pod_dict in current_service[1]]
+            current_service = json.loads(current_service.decode("utf-8"))
+            current_service[1] = [make_pod(pod_dict) for pod_dict in current_service[1]]
             master_name = current_service[0]
             with share_lock:
                 tmp1_dict = manager_current_service_on_each_node_dict.setdefault(
-                    master_name, manager.dict())
+                    master_name, manager.dict()
+                )
                 for pod in current_service[1]:
                     pod_status = pod.status
-                    if pod_status != 'Running':
+                    if pod_status != "Running":
                         continue
                     node_name = pod.node
                     if node_name in tmp1_dict:
@@ -415,25 +462,26 @@ def current_service_on_each_node(manager_current_service_on_each_node_dict, shar
                     else:
                         tmp2_dict = manager.dict()
                         tmp1_dict[node_name] = tmp2_dict
-                    service_name = re.match(
-                        r'^(.*?)-deployment', pod.name.lstrip())
+                    service_name = re.match(r"^(.*?)-deployment", pod.name.lstrip())
                     if service_name is None:
                         continue
                     else:
                         service_name = service_name.group(1)
-                    type = re.findall(r'\d+\.?\d*', service_name)[0]
+                    type = re.findall(r"\d+\.?\d*", service_name)[0]
                     # inner_dict = manager.dict()
                     # inner_dict[type] = 0
                     if type in tmp2_dict:
                         tmp2_dict[type] += 1
                     else:
                         tmp2_dict[type] = 1
-            conn.sendall(b'\0')
+            conn.sendall(b"\0")
             conn.close()
 
 
 # Dict::   边缘master名字->>种类->数量
-def stuck_tasks_situation_on_each_node(manager_stuck_tasks_situation_on_each_node_dict, share_lock):
+def stuck_tasks_situation_on_each_node(
+    manager_stuck_tasks_situation_on_each_node_dict, share_lock
+):
     print("收集stuck任务进程启动！")
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setblocking(1)
@@ -446,19 +494,20 @@ def stuck_tasks_situation_on_each_node(manager_stuck_tasks_situation_on_each_nod
         while True:
             c, addr = server.accept()
             mission_len = c.recv(8)
-            mission_len = int.from_bytes(mission_len, byteorder='big')
+            mission_len = int.from_bytes(mission_len, byteorder="big")
             this_mission = c.recv(mission_len)
-            detail_mission = json.loads(this_mission.decode('utf-8'))
+            detail_mission = json.loads(this_mission.decode("utf-8"))
             c.close()
-            name = detail_mission['name']
-            type = detail_mission['type']
+            name = detail_mission["name"]
+            type = detail_mission["type"]
             with share_lock:
                 tmp1_dict = manager_stuck_tasks_situation_on_each_node_dict.setdefault(
-                    name, manager.dict())
+                    name, manager.dict()
+                )
                 inner_dict = manager.dict()
-                inner_dict['stuck'] = 0
+                inner_dict["stuck"] = 0
                 tmp2_dict = tmp1_dict.setdefault(type, inner_dict)
-                tmp2_dict['stuck'] += 1
+                tmp2_dict["stuck"] += 1
 
 
 def resources_on_each_node(manager_resources_on_each_node_dict, share_lock):
@@ -472,16 +521,18 @@ def resources_on_each_node(manager_resources_on_each_node_dict, share_lock):
     while True:
         c, addr = server.accept()
         resources_len = c.recv(8)
-        resources_len = int.from_bytes(resources_len, byteorder='big')
+        resources_len = int.from_bytes(resources_len, byteorder="big")
         resources = c.recv(resources_len)
-        resources = json.loads(resources.decode('utf-8'))
-        print('收集函数：')
+        resources = json.loads(resources.decode("utf-8"))
+        print("收集函数：")
         print(resources)
         with share_lock:
             for master_name in resources:
-                manager_resources_on_each_node_dict[master_name] = resources[master_name]
+                manager_resources_on_each_node_dict[master_name] = resources[
+                    master_name
+                ]
             print(manager_resources_on_each_node_dict._getvalue())
-        c.sendall(b'\0')
+        c.sendall(b"\0")
         c.close()
 
 
@@ -516,7 +567,7 @@ def resources_on_each_node(manager_resources_on_each_node_dict, share_lock):
 
 
 def make_pod(pod_dict):
-    pod = Pod('', '', '', '', '', '', '')
+    pod = Pod("", "", "", "", "", "", "")
     pod.__dict__ = pod_dict
     return pod
 
@@ -549,9 +600,16 @@ def make_pod(pod_dict):
 #     return pod_update_result
 
 
-def placement_chosen(master_name, update_interval, tasks_execute_situation_on_each_node_dict,
-                     current_service_on_each_node_dict,
-                     stuck_tasks_situation_on_each_node_dict, resources_on_each_node_dict, i, epoch_index):
+def placement_chosen(
+    master_name,
+    update_interval,
+    tasks_execute_situation_on_each_node_dict,
+    current_service_on_each_node_dict,
+    stuck_tasks_situation_on_each_node_dict,
+    resources_on_each_node_dict,
+    i,
+    epoch_index,
+):
     """
     :param
     比如这个集群里类型3的请求失败率特别高，那我们就要在集群多部署类型3的服务来加快处理
@@ -572,7 +630,7 @@ def placement_chosen(master_name, update_interval, tasks_execute_situation_on_ea
     [-MAX_KIND，MAX_KIND]
     """
 
-    result = ''
+    result = ""
     # if i == 0:
     #     result = greedy_algorithm_placement(master_name, update_interval, tasks_execute_situation_on_each_node_dict,
     #                                         current_service_on_each_node_dict,stuck_tasks_situation_on_each_node_dict,
@@ -582,14 +640,27 @@ def placement_chosen(master_name, update_interval, tasks_execute_situation_on_ea
     #                                   current_service_on_each_node_dict,stuck_tasks_situation_on_each_node_dict,
     #                                   resources_on_each_node_dict, epoch_index)
     print("采用编排算法容器：", ALG_NAME[i])
-    observation = json.dumps([master_name, update_interval, tasks_execute_situation_on_each_node_dict,
-                              current_service_on_each_node_dict,
-                              stuck_tasks_situation_on_each_node_dict, resources_on_each_node_dict,
-                              epoch_index])
+    observation = json.dumps(
+        [
+            master_name,
+            update_interval,
+            tasks_execute_situation_on_each_node_dict,
+            current_service_on_each_node_dict,
+            stuck_tasks_situation_on_each_node_dict,
+            resources_on_each_node_dict,
+            epoch_index,
+        ]
+    )
     alg_pod = check_pod(ALG_NAME[i])
     alg_ip = alg_pod[0].ip
     result = os.popen(
-        'curl http://' + alg_ip + ':' + ALG_PORT[i] + '/predict -X POST -d \'observation=' + observation + '\''
+        "curl http://"
+        + alg_ip
+        + ":"
+        + ALG_PORT[i]
+        + "/predict -X POST -d 'observation="
+        + observation
+        + "'"
     ).read()
 
     result = json.loads(result)
@@ -598,9 +669,15 @@ def placement_chosen(master_name, update_interval, tasks_execute_situation_on_ea
     return result
 
 
-def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situation_on_each_node_dict,
-                               current_service_on_each_node_dict,
-                               stuck_tasks_situation_on_each_node_dict, resources_on_each_node_dict, epoch_index):
+def greedy_algorithm_placement(
+    master_name,
+    update_interval,
+    tasks_execute_situation_on_each_node_dict,
+    current_service_on_each_node_dict,
+    stuck_tasks_situation_on_each_node_dict,
+    resources_on_each_node_dict,
+    epoch_index,
+):
     """
     贪心算法
 
@@ -637,7 +714,28 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
     [-MAX_KIND，MAX_KIND]
     """
     result = []
-    failure_box = [-2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2, -2]
+    failure_box = [
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+        -2,
+    ]
     success_box = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
 
     # 选第一个参数
@@ -647,12 +745,11 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
     for type in first_dict:
         value = first_dict[type]
         print(value)
-        failure_percent = value['failure'] / \
-                          (value['success'] + value['failure'])
+        failure_percent = value["failure"] / (value["success"] + value["failure"])
         failure_box[type - 1] = failure_percent
         success_box[type - 1] = 1 - failure_percent
 
-    print('失败率：')
+    print("失败率：")
     print(failure_box)
     first_param = None
 
@@ -662,15 +759,15 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
     # {'node1': {'memory': '12193908Ki', 'ephemeral-storage': '18903225108'}
     for node in second_dict:
         resources = second_dict[node]
-        cpu = resources['cpu']
-        cpu_percent = cpu['percent']
-        cpu_number = cpu['number']
-        memory = resources['memory']
-        memory_percent = memory['percent']
-        memory_number = memory['number']
-        ephemeral_storage = resources['storage']
-        ephemeral_storage_percent = ephemeral_storage['percent']
-        ephemeral_storage_number = ephemeral_storage['number']
+        cpu = resources["cpu"]
+        cpu_percent = cpu["percent"]
+        cpu_number = cpu["number"]
+        memory = resources["memory"]
+        memory_percent = memory["percent"]
+        memory_number = memory["number"]
+        ephemeral_storage = resources["storage"]
+        ephemeral_storage_percent = ephemeral_storage["percent"]
+        ephemeral_storage_number = ephemeral_storage["number"]
         if int(memory_percent) <= 90:
             if_delete = False
 
@@ -723,19 +820,19 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
         second_param = 0
         fifth_dict = stuck_tasks_situation_on_each_node_dict[master_name]
         for type in fifth_dict:
-            num = fifth_dict[type]['stuck']
+            num = fifth_dict[type]["stuck"]
             if num > max_stuck:
                 max_stuck = num
                 second_param = type
 
     success = np.zeros(20).astype(int)
     for key, the_dict in first_dict.items():
-        success[key] = the_dict['success']
+        success[key] = the_dict["success"]
 
     reward = success.sum()
 
     if epoch_index > 0:
-        with open('./reward_hist.csv', 'a+', newline="") as f2:
+        with open("./reward_hist.csv", "a+", newline="") as f2:
             csv_write = csv.writer(f2)
             csv_write.writerow([epoch_index, reward / update_interval])  # 记得要改
             f2.close()
@@ -749,9 +846,19 @@ def greedy_algorithm_placement(master_name, update_interval, tasks_execute_situa
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, replay_memory_size,
-                 mini_batch_size, replace_target_period, gamma, epsilon=1.0, epsilon_min=0.01, epsilon_decrement=0.001,
-                 learning_rate=0.005):
+    def __init__(
+        self,
+        state_size,
+        action_size,
+        replay_memory_size,
+        mini_batch_size,
+        replace_target_period,
+        gamma,
+        epsilon=1.0,
+        epsilon_min=0.01,
+        epsilon_decrement=0.001,
+        learning_rate=0.005,
+    ):
         self.state_size = state_size
         self.action_size = action_size
         # 能存多少数据
@@ -792,7 +899,7 @@ class DQNAgent:
 
     # 这些量都是tensor
     def remember(self, state, action, reward, next_state):
-        if not hasattr(self, 'memory_counter'):
+        if not hasattr(self, "memory_counter"):
             self.memory_counter = 0
         transition = t.cat((state, action, reward, next_state), dim=1)
         index = self.memory_counter % self.replay_memory_size
@@ -811,17 +918,25 @@ class DQNAgent:
 
     def replay(self):
         if self.memory_counter > self.replay_memory_size:
-            sample_index = np.random.choice(self.replay_memory_size, size=self.mini_batch_size)
+            sample_index = np.random.choice(
+                self.replay_memory_size, size=self.mini_batch_size
+            )
         else:
-            sample_index = np.random.choice(self.memory_counter, size=self.mini_batch_size)
+            sample_index = np.random.choice(
+                self.memory_counter, size=self.mini_batch_size
+            )
         # 训练时，每次取经验池中的batchsize条observation
         batch_memory = self.memory[sample_index, :]
 
         # obtain the samples
-        b_s = Variable(t.FloatTensor(batch_memory[:, :self.state_size]))
-        b_a = Variable(t.IntTensor(batch_memory[:, self.state_size:self.state_size + 1].int()))
-        b_r = Variable(t.FloatTensor(batch_memory[:, self.state_size + 1:self.state_size + 2]))
-        b_s_ = Variable(t.FloatTensor(batch_memory[:, -self.state_size:]))
+        b_s = Variable(t.FloatTensor(batch_memory[:, : self.state_size]))
+        b_a = Variable(
+            t.IntTensor(batch_memory[:, self.state_size : self.state_size + 1].int())
+        )
+        b_r = Variable(
+            t.FloatTensor(batch_memory[:, self.state_size + 1 : self.state_size + 2])
+        )
+        b_s_ = Variable(t.FloatTensor(batch_memory[:, -self.state_size :]))
 
         # 将当前state输入训练网络，得到Q(s,a)
         q_eval = self.eval_model.forward(b_s)
@@ -836,8 +951,10 @@ class DQNAgent:
         # obtain the target q values for the comparison with eval q values
         for idx_mini_batch in range(self.mini_batch_size):
             action = int(batch_memory[idx_mini_batch, self.state_size].numpy())
-            q_target[idx_mini_batch, action] = batch_memory[idx_mini_batch, self.state_size + 1] + self.gamma * \
-                                               q_target[idx_mini_batch].view(1, -1).max(1)[0]
+            q_target[idx_mini_batch, action] = (
+                batch_memory[idx_mini_batch, self.state_size + 1]
+                + self.gamma * q_target[idx_mini_batch].view(1, -1).max(1)[0]
+            )
 
         # mini-batch
         loss = self.loss_func(q_eval, q_target)
@@ -845,7 +962,11 @@ class DQNAgent:
         loss.backward()
         self.optimizer.step()
 
-        self.epsilon = self.epsilon - self.epsilon_decrement if self.epsilon > self.epsilon_min else self.epsilon_min
+        self.epsilon = (
+            self.epsilon - self.epsilon_decrement
+            if self.epsilon > self.epsilon_min
+            else self.epsilon_min
+        )
 
         # record the learning step already been done
         self.learning_step = self.learning_step + 1
@@ -877,9 +998,15 @@ def calc_reward(success_t):
     return success_t
 
 
-def q_learning_placement(master_name, update_interval, tasks_execute_situation_on_each_node_dict,
-                         current_service_on_each_node_dict,
-                         stuck_tasks_situation_on_each_node_dict, resources_on_each_node_dict, epoch_index):
+def q_learning_placement(
+    master_name,
+    update_interval,
+    tasks_execute_situation_on_each_node_dict,
+    current_service_on_each_node_dict,
+    stuck_tasks_situation_on_each_node_dict,
+    resources_on_each_node_dict,
+    epoch_index,
+):
     """
     强化学习
     分析：
@@ -918,39 +1045,39 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
     param4 = resources_on_each_node_dict[master_name]
 
     for key, the_dict in param1.items():
-        success[key - 1] = the_dict['success']
-        failure[key - 1] = the_dict['failure']
+        success[key - 1] = the_dict["success"]
+        failure[key - 1] = the_dict["failure"]
 
     for key1, value1 in param2.items():
         for key2, value2 in value1.items():
             service[key2 - 1] += value2
 
     for key, the_dict in param3.items():
-        stuck[key - 1] = the_dict['stuck']
+        stuck[key - 1] = the_dict["stuck"]
 
     for key, the_dict in param4.items():
-        cpu = the_dict['cpu']
-        cpu_percent = cpu['percent']
-        cpu_number = cpu['number']
-        memory = the_dict['memory']
-        memory_percent = memory['percent']
-        memory_number = memory['number']
-        ephemeral_storage = the_dict['storage']
-        ephemeral_storage_percent = ephemeral_storage['percent']
-        ephemeral_storage_number = ephemeral_storage['number']
+        cpu = the_dict["cpu"]
+        cpu_percent = cpu["percent"]
+        cpu_number = cpu["number"]
+        memory = the_dict["memory"]
+        memory_percent = memory["percent"]
+        memory_number = memory["number"]
+        ephemeral_storage = the_dict["storage"]
+        ephemeral_storage_percent = ephemeral_storage["percent"]
+        ephemeral_storage_number = ephemeral_storage["number"]
         if int(memory_percent) + 6 <= 90:
             if_delete = np.array([0])
             break
 
-    print('success-----------------------')
+    print("success-----------------------")
     print(success)
-    print('failure-----------------------')
+    print("failure-----------------------")
     print(failure)
-    print('stuck-----------------------')
+    print("stuck-----------------------")
     print(stuck)
-    print('service-----------------------')
+    print("service-----------------------")
     print(service)
-    print('if_dalete-----------------------')
+    print("if_dalete-----------------------")
     print(if_delete)
 
     raw_s = np.concatenate((success, failure, stuck, service, if_delete))
@@ -980,18 +1107,26 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
     CONTROL_ACTION_MAP = np.arange(flat_action_num).reshape(DELETE_ACTION, ADD_ACTION)
 
     if epoch_index == 0:
-        agent = DQNAgent(state_size=STATE_SIZE, action_size=ACTION_SIZE, replay_memory_size=REPLAY_MEMORY_SIZE,
-                         mini_batch_size=MINI_BATCH_SIZE, replace_target_period=REPLACE_TARGET_PERIOD, gamma=GAMMA,
-                         epsilon=EPSILON, epsilon_min=EPSILON_MIN, epsilon_decrement=EPSILON_DECREMENT,
-                         learning_rate=LEARNING_RATE)
+        agent = DQNAgent(
+            state_size=STATE_SIZE,
+            action_size=ACTION_SIZE,
+            replay_memory_size=REPLAY_MEMORY_SIZE,
+            mini_batch_size=MINI_BATCH_SIZE,
+            replace_target_period=REPLACE_TARGET_PERIOD,
+            gamma=GAMMA,
+            epsilon=EPSILON,
+            epsilon_min=EPSILON_MIN,
+            epsilon_decrement=EPSILON_DECREMENT,
+            learning_rate=LEARNING_RATE,
+        )
     else:
-        agent_path = 'agent_pickled.txt'
-        with open(agent_path, 'rb') as f:
+        agent_path = "agent_pickled.txt"
+        with open(agent_path, "rb") as f:
             try:
                 agent = pickle.load(f)
-                print('load成功：', epoch_index)
+                print("load成功：", epoch_index)
             except Exception as e:
-                print('can not be loaded')
+                print("can not be loaded")
                 raise  # 处理不了的 Exception 应该继续抛出，防止后面的代码被执行
             finally:
                 f.close()
@@ -1009,15 +1144,15 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
     if_delete = np.array([1])
     if next_delete == 0:
         for key, the_dict in param4.items():
-            cpu = the_dict['cpu']
-            cpu_percent = cpu['percent']
-            cpu_number = cpu['number']
-            memory = the_dict['memory']
-            memory_percent = memory['percent']
-            memory_number = memory['number']
-            ephemeral_storage = the_dict['storage']
-            ephemeral_storage_percent = ephemeral_storage['percent']
-            ephemeral_storage_number = ephemeral_storage['number']
+            cpu = the_dict["cpu"]
+            cpu_percent = cpu["percent"]
+            cpu_number = cpu["number"]
+            memory = the_dict["memory"]
+            memory_percent = memory["percent"]
+            memory_number = memory["number"]
+            ephemeral_storage = the_dict["storage"]
+            ephemeral_storage_percent = ephemeral_storage["percent"]
+            ephemeral_storage_number = ephemeral_storage["number"]
             if int(memory_percent) + 6 <= 90:
                 if_delete = np.array([0])
                 break
@@ -1035,20 +1170,20 @@ def q_learning_placement(master_name, update_interval, tasks_execute_situation_o
     # if there are enough transitions, perform learning
     if epoch_index >= MINI_BATCH_SIZE:
         cur_loss = agent.replay()
-        with open('./loss_hist.csv', 'a+', newline="") as f1:
+        with open("./loss_hist.csv", "a+", newline="") as f1:
             csv_write = csv.writer(f1)
             csv_write.writerow([epoch_index, cur_loss.item()])
             f1.close()
 
     # record the reward
     if epoch_index > 0:
-        with open('./reward_hist.csv', 'a+', newline="") as f2:
+        with open("./reward_hist.csv", "a+", newline="") as f2:
             csv_write = csv.writer(f2)
             csv_write.writerow([epoch_index, reward.item() / update_interval])  # 记得要改
             f2.close()
 
-    with open('agent_pickled.txt', 'wb') as f:
-        print('save成功：', epoch_index)
+    with open("agent_pickled.txt", "wb") as f:
+        print("save成功：", epoch_index)
         pickle.dump(agent, f)
         f.close()
 

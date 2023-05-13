@@ -9,10 +9,10 @@ import flask
 import json
 import random
 
-'''
+"""
 0代表云，接下来按照node的名字排列1，2···
 返回的是云或者是自己集群里的node编号
-'''
+"""
 
 # 根据实际情况改动
 ACTION_NUM = 3  # 云+边缘节点
@@ -24,7 +24,7 @@ def random_node_offload():
 
 
 # CPU
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # initialize our Flask application
 app = flask.Flask(__name__)
@@ -34,7 +34,7 @@ app = flask.Flask(__name__)
 @app.route("/predict", methods=["POST"])
 def predict():
     if flask.request.method == "POST":
-        observation = flask.request.form['observation']
+        observation = flask.request.form["observation"]
         observation = json.loads(observation)
         result = random_node_offload()
     return flask.jsonify(["result", result])
@@ -43,4 +43,4 @@ def predict():
 # if this is the main thread of execution first load the model and
 # then start the server
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=4000, threaded=True)
+    app.run(host="0.0.0.0", port=4000, threaded=True)

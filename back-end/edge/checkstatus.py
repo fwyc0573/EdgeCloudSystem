@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 import os
 import time
 from kubernetes import client, watch, config
@@ -8,32 +8,32 @@ import re
 
 # /proc/cpuinfo　　cpu的信息
 def cpuinfo():
-    info = os.popen('cat /proc/cpuinfo').read().split('\n')
+    info = os.popen("cat /proc/cpuinfo").read().split("\n")
     result = {}
     for i in range(len(info)):
-        if info[i].find('\t: ') == -1:
+        if info[i].find("\t: ") == -1:
             continue
-        result[info[i].split('\t: ')[0]] = info[i].split('\t: ')[1]
+        result[info[i].split("\t: ")[0]] = info[i].split("\t: ")[1]
     return result
 
 
 # /proc/meminfo 　　RAM使用的相关信息
 def meminfo():
-    info = os.popen('cat /proc/meminfo').read().split('\n')
+    info = os.popen("cat /proc/meminfo").read().split("\n")
     result = {}
     for i in range(len(info)):
-        if info[i].find(':        ') == -1:
+        if info[i].find(":        ") == -1:
             continue
-        result[info[i].split(':        ')[0]] = info[i].split(':        ')[1].strip()
+        result[info[i].split(":        ")[0]] = info[i].split(":        ")[1].strip()
     return result
 
 
 # /proc/uptime　　系统已经运行了多久
 def uptime():
-    info = os.popen('cat /proc/uptime').read().split(' ')
+    info = os.popen("cat /proc/uptime").read().split(" ")
     result = {}
-    result['run time'] = info[0].strip()
-    result['idle time'] = info[1].strip()
+    result["run time"] = info[0].strip()
+    result["idle time"] = info[1].strip()
     return result
 
 
@@ -53,7 +53,7 @@ def nodes():
     v1 = client.CoreV1Api()
     ready_nodes = []
     resource = {}
-    master_name = ''
+    master_name = ""
     for n in v1.list_node().items:
         if "master" in n.metadata.name:
             master_name = n.metadata.name
@@ -65,20 +65,31 @@ def nodes():
                     current_resource = {}
                     # current_resource['memory'] = n.status.allocatable['memory']
                     # current_resource['ephemeral-storage'] = n.status.allocatable['ephemeral-storage']
-                    total_str = os.popen('kubectl describe node ' + n.metadata.name).read()
-                    total = re.split('\n', total_str)
-                    cpu = ' '.join(total[-7].split())
-                    memory = ' '.join(total[-6].split())
-                    storage = ' '.join(total[-5].split())
-                    cpu_percent = cpu.split(' ')[-1][1:-2]
-                    cpu_number = cpu.split(' ')[-2]
-                    memory_percent = memory.split(' ')[-1][1:-2]
-                    memory_number = memory.split(' ')[-2]
-                    storage_percent = storage.split(' ')[-1][1:-2]
-                    storage_number = storage.split(' ')[-2]
-                    current_resource['cpu'] = {'percent': cpu_percent, 'number': cpu_number}
-                    current_resource['memory'] = {'percent': memory_percent, 'number': memory_number}
-                    current_resource['storage'] = {'percent': storage_percent, 'number': storage_number}
+                    total_str = os.popen(
+                        "kubectl describe node " + n.metadata.name
+                    ).read()
+                    total = re.split("\n", total_str)
+                    cpu = " ".join(total[-7].split())
+                    memory = " ".join(total[-6].split())
+                    storage = " ".join(total[-5].split())
+                    cpu_percent = cpu.split(" ")[-1][1:-2]
+                    cpu_number = cpu.split(" ")[-2]
+                    memory_percent = memory.split(" ")[-1][1:-2]
+                    memory_number = memory.split(" ")[-2]
+                    storage_percent = storage.split(" ")[-1][1:-2]
+                    storage_number = storage.split(" ")[-2]
+                    current_resource["cpu"] = {
+                        "percent": cpu_percent,
+                        "number": cpu_number,
+                    }
+                    current_resource["memory"] = {
+                        "percent": memory_percent,
+                        "number": memory_number,
+                    }
+                    current_resource["storage"] = {
+                        "percent": storage_percent,
+                        "number": storage_number,
+                    }
                     resource[master_name][n.metadata.name] = current_resource
                 else:
                     pass
@@ -97,19 +108,22 @@ def get_nodes_name():
             name.append(n.metadata.name)
     return name
 
+
 def check_status():
     result = []
-    with open('./node_status_info/cpu_' + str(time.time()) + '.json', 'w') as file_obj:
+    with open("./node_status_info/cpu_" + str(time.time()) + ".json", "w") as file_obj:
         cpu = cpuinfo()
         json.dump(cpu, file_obj)
         result.append(cpu)
 
-    with open('./node_status_info/mem_' + str(time.time()) + '.json', 'w') as file_obj:
+    with open("./node_status_info/mem_" + str(time.time()) + ".json", "w") as file_obj:
         mem = meminfo()
         json.dump(mem, file_obj)
         result.append(mem)
 
-    with open('./node_status_info/uptime_' + str(time.time()) + '.json', 'w') as file_obj:
+    with open(
+        "./node_status_info/uptime_" + str(time.time()) + ".json", "w"
+    ) as file_obj:
         up_time = uptime()
         json.dump(up_time, file_obj)
         result.append(up_time)
@@ -129,7 +143,7 @@ def check_status():
     return result
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     check_status()
     # while True:
     #     with open('./json/cpu_' + str(time.time()) + '.json', 'w') as file_obj:

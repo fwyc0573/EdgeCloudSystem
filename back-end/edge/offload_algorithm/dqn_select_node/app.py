@@ -34,7 +34,8 @@ POD_PARAM_LEN = 20
 
 # 这里是共有两个node，参数暂定，可修改
 s_dim = (CPU_PARAM_LEN + MEM_PARAM_LEN + UPTIME_PARAM_LEN) * (
-        ACTION_NUM - 1) + POD_PARAM_LEN * ACTION_NUM
+    ACTION_NUM - 1
+) + POD_PARAM_LEN * ACTION_NUM
 a_dim = 1
 
 
@@ -76,7 +77,9 @@ class DDPG(object):
         self.a_dim, self.s_dim = a_dim, s_dim
         self.var = 3  # 在训练期间的exploration（会逐渐减少）
         self.ep_r = 0
-        self.memory = np.zeros((MEMORY_CAPACITY, s_dim * 2 + a_dim + 1), dtype=np.float32)
+        self.memory = np.zeros(
+            (MEMORY_CAPACITY, s_dim * 2 + a_dim + 1), dtype=np.float32
+        )
         self.pointer = 0  # 更新memory data的时候使用
         # 4个网络
         self.Actor_eval = ANet(s_dim, a_dim)
@@ -98,19 +101,31 @@ class DDPG(object):
     def learn(self):
         # soft 更新target network
         for x in self.Actor_target.state_dict().keys():
-            eval('self.Actor_target.' + x + '.data.mul_((1-TAU))')
-            eval('self.Actor_target.' + x + '.data.add_(TAU*self.Actor_eval.' + x + '.data)')
+            eval("self.Actor_target." + x + ".data.mul_((1-TAU))")
+            eval(
+                "self.Actor_target."
+                + x
+                + ".data.add_(TAU*self.Actor_eval."
+                + x
+                + ".data)"
+            )
         for x in self.Critic_target.state_dict().keys():
-            eval('self.Critic_target.' + x + '.data.mul_((1-TAU))')
-            eval('self.Critic_target.' + x + '.data.add_(TAU*self.Critic_eval.' + x + '.data)')
+            eval("self.Critic_target." + x + ".data.mul_((1-TAU))")
+            eval(
+                "self.Critic_target."
+                + x
+                + ".data.add_(TAU*self.Critic_eval."
+                + x
+                + ".data)"
+            )
 
         # sample a mini-batch
         indices = np.random.choice(MEMORY_CAPACITY, size=BATCH_SIZE)
         bt = self.memory[indices, :]
-        bs = torch.FloatTensor(bt[:, :self.s_dim])
-        ba = torch.FloatTensor(bt[:, self.s_dim:self.s_dim + self.a_dim])
-        br = torch.FloatTensor(bt[:, -self.s_dim - 1:-self.s_dim])
-        bs_ = torch.FloatTensor(bt[:, -self.s_dim:])
+        bs = torch.FloatTensor(bt[:, : self.s_dim])
+        ba = torch.FloatTensor(bt[:, self.s_dim : self.s_dim + self.a_dim])
+        br = torch.FloatTensor(bt[:, -self.s_dim - 1 : -self.s_dim])
+        bs_ = torch.FloatTensor(bt[:, -self.s_dim :])
 
         # 做动作
         a = self.Actor_eval(bs)
@@ -164,10 +179,10 @@ def dqn_node_offload(arguments):
 
     # 确保这里的node是按顺序排的
     # 有两个node,要将参数进行处理并且归一化
-    cpu_list = nodes_resource['cpu']
-    mem_list = nodes_resource['mem']
-    up_time_list = nodes_resource['up_time']
-    pod_list = nodes_resource['pod']
+    cpu_list = nodes_resource["cpu"]
+    mem_list = nodes_resource["mem"]
+    up_time_list = nodes_resource["up_time"]
+    pod_list = nodes_resource["pod"]
 
     # cpu
     cpu = np.array(cpu_list).astype(float)
@@ -183,11 +198,11 @@ def dqn_node_offload(arguments):
     if epoch_index == 1:
         ddpg = DDPG(a_dim, s_dim)
     else:
-        if not os.path.exists('/home/service/dqn-node-offload'):
-            os.makedirs('/home/service/dqn-node-offload')
+        if not os.path.exists("/home/service/dqn-node-offload"):
+            os.makedirs("/home/service/dqn-node-offload")
 
-        ddpg_path = '/home/service/dqn-node-offload/ddpg_pickled.txt'
-        with open(ddpg_path, 'rb') as f:
+        ddpg_path = "/home/service/dqn-node-offload/ddpg_pickled.txt"
+        with open(ddpg_path, "rb") as f:
             try:
                 ddpg = pickle.load(f)
             except Exception as e:
@@ -211,9 +226,9 @@ def dqn_node_offload(arguments):
         s_ = np.concatenate((cpu, mem, up_time, pod))
         ddpg.store_transition(s, a, r, s_)  # 存储记忆
 
-    if not os.path.exists('/home/service/dqn-node-offload'):
-        os.makedirs('/home/service/dqn-node-offload')
-    with open('/home/service/dqn-node-offload/ddpg_pickled.txt', 'wb') as f:
+    if not os.path.exists("/home/service/dqn-node-offload"):
+        os.makedirs("/home/service/dqn-node-offload")
+    with open("/home/service/dqn-node-offload/ddpg_pickled.txt", "wb") as f:
         pickle.dump(ddpg, f)
         f.close()
     return a.item()
@@ -227,8 +242,8 @@ def store_feedback(arguments):
 
     loss_a, td_error = 0, 0
 
-    ddpg_path = '/home/service/dqn-node-offload/ddpg_pickled.txt'
-    with open(ddpg_path, 'rb') as f:
+    ddpg_path = "/home/service/dqn-node-offload/ddpg_pickled.txt"
+    with open(ddpg_path, "rb") as f:
         try:
             ddpg = pickle.load(f)
         except Exception as e:
@@ -246,28 +261,34 @@ def store_feedback(arguments):
         loss_a, td_error = ddpg.learn()
 
     ddpg.ep_r += r
-    print('Episode: ', epoch_index, ' Reward: %i' % ddpg.ep_r, 'Explore: %.2f' % ddpg.var)
+    print(
+        "Episode: ", epoch_index, " Reward: %i" % ddpg.ep_r, "Explore: %.2f" % ddpg.var
+    )
 
     if epoch_index >= BATCH_SIZE:
-        with open('/home/service/dqn-node-offload/loss_hist.csv', 'a+', newline="") as f1:
+        with open(
+            "/home/service/dqn-node-offload/loss_hist.csv", "a+", newline=""
+        ) as f1:
             csv_write = csv.writer(f1)
             csv_write.writerow([epoch_index, loss_a, td_error])
             f1.close()
 
     # record the reward
     if epoch_index > 1:
-        with open('/home/service/dqn-node-offload/reward_hist.csv', 'a+', newline="") as f2:
+        with open(
+            "/home/service/dqn-node-offload/reward_hist.csv", "a+", newline=""
+        ) as f2:
             csv_write = csv.writer(f2)
             csv_write.writerow([epoch_index, r])  # 记得要改
             f2.close()
 
-    with open('/home/service/dqn-node-offload/ddpg_pickled.txt', 'wb') as f:
+    with open("/home/service/dqn-node-offload/ddpg_pickled.txt", "wb") as f:
         pickle.dump(ddpg, f)
         f.close()
 
 
 # CPU
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # initialize our Flask application
 app = flask.Flask(__name__)
@@ -275,7 +296,7 @@ app = flask.Flask(__name__)
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    observation = flask.request.form['observation']
+    observation = flask.request.form["observation"]
     observation = json.loads(observation)
     result = dqn_node_offload(observation)
     return flask.jsonify(["result", result])
@@ -283,7 +304,7 @@ def predict():
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
-    observation = flask.request.form['observation']
+    observation = flask.request.form["observation"]
     observation = json.loads(observation)
     store_feedback(observation)
 
@@ -291,4 +312,4 @@ def feedback():
 # if this is the main thread of execution first load the model and
 # then start the server
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=4002, threaded=True)
+    app.run(host="0.0.0.0", port=4002, threaded=True)

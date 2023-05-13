@@ -6,17 +6,25 @@ import time
 from sys import float_info
 
 # request_path = './request/batch_task_mini_test.csv'
-request_path = './request/poisson_data.csv'
+request_path = "./request/poisson_data.csv"
 
 # 输入edge_master的ip
-EDGE_MASTER_IP = '192.168.1.30'
+EDGE_MASTER_IP = "192.168.1.30"
 EDGE_MASTER_RECEIVE_REQUEST_PORT = 9000
 
 loop = asyncio.get_event_loop()
 
 
 class ReqData(object):
-    def __init__(self, type, start_time, end_time, data=None, execute_standard_time=0, send_system_time=0):
+    def __init__(
+        self,
+        type,
+        start_time,
+        end_time,
+        data=None,
+        execute_standard_time=0,
+        send_system_time=0,
+    ):
         self.type = int(type)
         self.start_time = int(start_time)
         self.end_time = int(end_time)
@@ -24,7 +32,7 @@ class ReqData(object):
         self.send_system_time = send_system_time
 
     def __repr__(self):
-        return f'ReqData(type={self.type},start_time={self.start_time},end_time={self.end_time},execute_standard_time={self.execute_standard_time},send_system_time={self.send_system_time})'
+        return f"ReqData(type={self.type},start_time={self.start_time},end_time={self.end_time},execute_standard_time={self.execute_standard_time},send_system_time={self.send_system_time})"
 
 
 # 输入：数据集路径
@@ -35,9 +43,10 @@ class ReqData(object):
 # 而且pillow的Image对象序列化有可能有奇怪的行为
 # 直接把二进制流传过去,到对面再把二进制流通过bytesio之类的给pillow解码
 
+
 def create_req(dataset_path):
     req_data_list = []
-    with open(dataset_path, 'r') as f:
+    with open(dataset_path, "r") as f:
         reader = csv.reader(f)
         it = iter(reader)
         next(it)
@@ -47,17 +56,24 @@ def create_req(dataset_path):
 
 
 async def send_request(req_data):
-    reader, writer = await asyncio.open_connection(EDGE_MASTER_IP, EDGE_MASTER_RECEIVE_REQUEST_PORT)
+    reader, writer = await asyncio.open_connection(
+        EDGE_MASTER_IP, EDGE_MASTER_RECEIVE_REQUEST_PORT
+    )
     req_data.send_system_time = time.time()
-    data = [req_data.type, req_data.start_time, req_data.end_time, req_data.execute_standard_time,
-            req_data.send_system_time]
+    data = [
+        req_data.type,
+        req_data.start_time,
+        req_data.end_time,
+        req_data.execute_standard_time,
+        req_data.send_system_time,
+    ]
     data = json.dumps(data)
-    writer.write(data.encode('utf-8'))
+    writer.write(data.encode("utf-8"))
     writer.close()
 
 
 async def main_coroutine():
-    print('center start')
+    print("center start")
     # 全部的信息
     req_data_list = create_req(request_path)
 
@@ -73,11 +89,11 @@ async def main_coroutine():
         time_now = loop.time() - time_offset
         time_to_wait = req_data_list[now_index].start_time - time_now
         if time_to_wait > float_info.epsilon:
-            print('waiting for next batch')
+            print("waiting for next batch")
             await asyncio.sleep(time_to_wait)
             time_now = loop.time() - time_offset
 
-        print('time now:', time_now)
+        print("time now:", time_now)
 
         last_index = now_index
         max_time = time_now + float_info.epsilon
@@ -88,10 +104,10 @@ async def main_coroutine():
             now_index += 1
 
         batch_to_send = req_data_list[last_index:now_index]
-        print('sending:', batch_to_send)
+        print("sending:", batch_to_send)
         await asyncio.gather(*map(send_request, batch_to_send))
-        print(f'progress: {now_index}/{req_data_len}')
+        print(f"progress: {now_index}/{req_data_len}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     loop.run_until_complete(main_coroutine())
